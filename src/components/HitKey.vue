@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { watch } from 'vue';
-import { useKey } from '../composables/useKey';
+import { watch } from "vue";
+import { useKey } from "../composables/useKey";
 
-const emit = defineEmits(["update:model-value"])
-const p = defineProps<{ hitKey: string }>()
+const emit = defineEmits(["update:model-value"]);
+const p = defineProps<{ hitKey: string }>();
 
 // todo: creare un mapping per i vari tasti?
-const { active } = useKey(`Key${p.hitKey.toUpperCase()}`)
+const { active } = useKey(`Key${p.hitKey.toUpperCase()}`);
 
-watch(active, (v) => emit("update:model-value", v))
+watch(active, (v) => emit("update:model-value", v));
 </script>
 
 <template>

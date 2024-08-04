@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { judgementService } from '../judgement/JudgementService';
-import { useScore } from './useScore';
+import { judgementService } from "../judgement/JudgementService";
+import { useScore } from "./useScore";
 
-const p = defineProps<{ totalNotes: number }>()
+const p = defineProps<{ totalNotes: number }>();
 
-const { score, update: updateScore } = useScore(() => p.totalNotes)
+const { score, update: updateScore } = useScore(() => p.totalNotes);
 
-judgementService.onAdd(updateScore)
+judgementService.onAdd(updateScore);
 </script>
 
 <template>

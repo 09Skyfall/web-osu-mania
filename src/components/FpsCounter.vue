@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAnimate } from '../composables/useAnimate';
-import { throttle } from 'lodash';
+import { ref } from "vue";
+import { useAnimate } from "../composables/useAnimate";
+import { throttle } from "lodash";
 
-const fps = ref(0)
-useAnimate(throttle((delta_t: number) => {
-  fps.value = Math.round(1000 / delta_t)
-}, 250))
+const fps = ref(0);
+useAnimate(
+  throttle((delta_t: number) => {
+    fps.value = Math.round(1000 / delta_t);
+  }, 250),
+);
 </script>
 
 <template>

@@ -4,24 +4,27 @@ import { useEventListener } from "./useEventListener";
 export type UseKeyOptions = {
   on_key_down?: () => void;
   on_key_up?: () => void;
-}
+};
 
-export const useKey = (key: KeyboardEvent["code"], options: UseKeyOptions = {}) => {
-  const active = ref(false)
+export const useKey = (
+  key: KeyboardEvent["code"],
+  options: UseKeyOptions = {},
+) => {
+  const active = ref(false);
 
   const onKeyDown = (e: Event) => {
-    if ((e as KeyboardEvent).code !== key) return
-    if (options.on_key_down) options.on_key_down()
-    active.value = true
-  }
+    if ((e as KeyboardEvent).code !== key) return;
+    if (options.on_key_down) options.on_key_down();
+    active.value = true;
+  };
   const onKeyUp = (e: Event) => {
-    if ((e as KeyboardEvent).code !== key) return
-    if (options.on_key_up) options.on_key_up()
-    active.value = false
-  }
+    if ((e as KeyboardEvent).code !== key) return;
+    if (options.on_key_up) options.on_key_up();
+    active.value = false;
+  };
 
-  useEventListener(document, "keydown", onKeyDown)
-  useEventListener(document, "keyup", onKeyUp)
+  useEventListener(document, "keydown", onKeyDown);
+  useEventListener(document, "keyup", onKeyUp);
 
-  return { active }
-}
+  return { active };
+};
