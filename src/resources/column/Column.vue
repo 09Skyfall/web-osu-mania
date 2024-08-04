@@ -7,6 +7,7 @@ import { forEachRight, inRange } from 'lodash';
 import { useJudgement } from '../judgement/useJudgement';
 import { CanvasAnimationFunction, useCanvasAnimation } from '../../composables/useCanvasAnimation';
 import { CanvasNote, Note, NOTE_TYPE } from '../note/store';
+import { useCanvas } from '../../composables/useCanvas';
 
 const p = defineProps<{
   height: number,
@@ -23,8 +24,7 @@ const DURATION = computed(() => COL_HEIGHT.value / SCROLL_SPEED) // ms
 // la duration sia > del hit_t della prima nota
 const START_DELAY = 0 // ms
 
-const canvas = ref<HTMLCanvasElement | null>(null)
-const canvasContext = computed(() => canvas.value?.getContext("2d") ?? undefined)
+const { canvas, ctx: canvasContext } = useCanvas()
 
 const canvas_notes = ref<CanvasNote[]>([])
 let isFullscreenNote = false
