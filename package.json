@@ -12,6 +12,7 @@
     "@types/lodash": "^4.17.7",
     "@zip.js/zip.js": "^2.7.47",
     "lodash": "^4.17.21",
+    "pinia": "^2.2.0",
     "vue": "^3.4.31"
   },
   "devDependencies": {
