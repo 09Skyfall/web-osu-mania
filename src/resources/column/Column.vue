@@ -7,22 +7,22 @@ import { forEachRight, inRange } from 'lodash';
 import { useJudgement } from '../judgement/useJudgement';
 import { CanvasAnimationFunction, useCanvasAnimation } from '../../composables/useCanvasAnimation';
 import { CanvasNote, Note, NOTE_TYPE } from '../note/store';
+import { useGameFieldStore } from '../field/store';
+import { storeToRefs } from 'pinia';
 import { useCanvas } from '../../composables/useCanvas';
 
 const p = defineProps<{
-  height: number,
-  width: number,
   notes: Note[],
   hitKey: string
 }>()
 
-const SCROLL_SPEED = 1.85 // px/ms
-const HIT_KEY_HEIGHT = 100 // px
-const COL_HEIGHT = computed(() => p.height - HIT_KEY_HEIGHT) // px
-const DURATION = computed(() => COL_HEIGHT.value / SCROLL_SPEED) // ms
-// should be computed accordingly: per esempio se la SS è molto bassa, potrebbe succede che
-// la duration sia > del hit_t della prima nota
-const START_DELAY = 0 // ms
+const {
+  SCROLL_SPEED,
+  HIT_KEY_HEIGHT,
+  COL_HEIGHT,
+  COL_WIDTH,
+  DURATION
+} = storeToRefs(useGameFieldStore())
 
 const { canvas, ctx: canvasContext } = useCanvas()
 
@@ -33,20 +33,20 @@ const timer = new Timer()
 
 const handleNoteDrawing = (note: CanvasNote, i: number, delta_t: number) => {
   assert(canvasContext.value !== undefined)
-  note.y += SCROLL_SPEED * delta_t
+  note.y += SCROLL_SPEED.value * delta_t
 
   switch (note.type) {
     case NOTE_TYPE.HEAD: {
       const tail = canvas_notes.value[i + 1] as CanvasNote | undefined
-      canvasContext.value.fillRect(0, note.y, 100, (tail?.y ?? 0) - note.y)
+      canvasContext.value.fillRect(0, note.y, COL_WIDTH.value, (tail?.y ?? 0) - note.y)
       break;
     }
     case NOTE_TYPE.TAIL: {
       const head = canvas_notes.value[i - 1] as CanvasNote | undefined
-      canvasContext.value.fillRect(0, note.y, 100, (head?.y ?? COL_HEIGHT.value) - note.y)
+      canvasContext.value.fillRect(0, note.y, COL_WIDTH.value, (head?.y ?? COL_HEIGHT.value) - note.y)
       break;
     }
-    default: canvasContext.value.fillRect(0, note.y, 100, -25)
+    default: canvasContext.value.fillRect(0, note.y, COL_WIDTH.value, -25)
   }
 }
 
@@ -65,10 +65,10 @@ const handleNoteDeletion = (note: CanvasNote, i: number) => {
 const handleFullscreenNote = () => {
   assert(canvas_notes.value.length === 0)
   assert(canvasContext.value !== undefined)
-  canvasContext.value.fillRect(0, 0, 100, COL_HEIGHT.value)
+  canvasContext.value.fillRect(0, 0, COL_WIDTH.value, COL_HEIGHT.value)
 }
 
-const { drawJudgementLines, judgeDeletedNote } = useJudgement(canvas_notes, active, { SCROLL_SPEED, COL_HEIGHT: COL_HEIGHT.value })
+const { drawJudgementLines, judgeDeletedNote } = useJudgement(canvas_notes, active, { SCROLL_SPEED, COL_HEIGHT })
 
 const start: CanvasAnimationFunction = (ctx, delta_t) => {
   if (!timer.started) timer.start()
@@ -106,7 +106,7 @@ defineExpose({ play })
 
 <template>
   <div class="wrapper">
-    <canvas ref="canvas" :width :height="COL_HEIGHT" class="canvas" />
+    <canvas ref="canvas" :width="COL_WIDTH" :height="COL_HEIGHT" class="canvas" />
     <hit-key v-model="active" :hit-key /> 
   </div>
 </template>

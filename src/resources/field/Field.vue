@@ -28,9 +28,9 @@ onMounted(() => {
 
 <template>
   <audio id="audio" :src="map.song"></audio>
-  <div class="field" v-resize="onScreenResize">
+  <div class="field">
     <template v-for="(col, i) of map.cols" :key="i">
-      <Column ref="columns" :height="screenHeight" :width="100" v-bind="col" />
+      <Column ref="columns" v-bind="col" />
     </template>
     <judgement class="judgement" />
   </div>
