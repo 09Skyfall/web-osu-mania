@@ -28,7 +28,9 @@ const {
 const { canvas, ctx: canvasContext } = useCanvas()
 
 const canvas_notes = ref<CanvasNote[]>([])
+let currentNote = 0
 let isFullscreenNote = false
+let finished = false
 const active = ref(false)
 const timer = new Timer()
 
@@ -72,13 +74,16 @@ const handleFullscreenNote = () => {
 const { drawJudgementLines, judgeDeletedNote } = useJudgement(canvas_notes, active, { SCROLL_SPEED, COL_HEIGHT })
 
 const start: CanvasAnimationFunction = (ctx, delta_t) => {
-  if (!timer.started) timer.start()
+  if (!timer.started) {
+    timer.start()
+    assert(p.notes.length > 0, "Expected notes to be a non empty array on start")
+  }
 
-  if (p.notes.length && p.notes[0].hit_t <= (timer.elapsed - p.startDelay) + DURATION.value) {
-    // TODO: using shift is probably very slow, should find a queue implementation that does this in O(1)
-    // todo: mutating prop not good
-    const { type } = p.notes.shift()!
+  if (!finished && p.notes[currentNote].hit_t <= (timer.elapsed - p.startDelay) + DURATION.value) {
+    const { type } = p.notes[currentNote]
     canvas_notes.value.push(new CanvasNote({ y: 0, type }))
+    currentNote = Math.min(currentNote + 1, p.notes.length - 1)
+    if (currentNote === p.notes.length - 1) finished = true
   }
 
   ctx.fillStyle = "white"
