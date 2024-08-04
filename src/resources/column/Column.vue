@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { ref } from 'vue';
 import { Timer } from '../../utils/Timer';
 import HitKey from '../../components/HitKey.vue';
 import { assert } from '../../utils/assert';
-import { forEachRight, inRange } from 'lodash';
+import { forEachRight } from 'lodash';
 import { useJudgement } from '../judgement/useJudgement';
 import { CanvasAnimationFunction, useCanvasAnimation } from '../../composables/useCanvasAnimation';
 import { CanvasNote, Note, NOTE_TYPE } from '../note/store';
@@ -13,7 +13,8 @@ import { useCanvas } from '../../composables/useCanvas';
 
 const p = defineProps<{
   notes: Note[],
-  hitKey: string
+  hitKey: string,
+  startDelay: number,
 }>()
 
 const {
@@ -73,13 +74,7 @@ const { drawJudgementLines, judgeDeletedNote } = useJudgement(canvas_notes, acti
 const start: CanvasAnimationFunction = (ctx, delta_t) => {
   if (!timer.started) timer.start()
 
-  if (canvas_notes.value[0]?.y && inRange(canvas_notes.value[0]?.y, COL_HEIGHT.value - 20, COL_HEIGHT.value + 20))
-    console.log("stop!", timer.elapsed - START_DELAY)
-
-  // @doc Cosa succede se le prime note hanno hit_t molto minore di timer.elapsed + DURATION ?
-  // Potrebbe essere un'idea far partire a -x secondi, per permettere all'utente di "prepararsi"
-  if (p.notes.length && p.notes[0].hit_t <= (timer.elapsed - START_DELAY) + DURATION.value) {
-    console.log("start!", p.notes.length && p.notes[0].hit_t, timer.elapsed - START_DELAY, DURATION.value)
+  if (p.notes.length && p.notes[0].hit_t <= (timer.elapsed - p.startDelay) + DURATION.value) {
     // TODO: using shift is probably very slow, should find a queue implementation that does this in O(1)
     // todo: mutating prop not good
     const { type } = p.notes.shift()!

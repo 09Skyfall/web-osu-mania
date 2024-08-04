@@ -2,7 +2,10 @@
 import Column from '../column/Column.vue';
 import Judgement from '../judgement/Judgement.vue';
 import { type ColumnProps } from '../column/store';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useGameFieldStore } from './store';
+import { storeToRefs } from 'pinia';
+import { sum } from 'lodash';
 
 // TODO: spostare
 type Map = {
@@ -10,10 +13,9 @@ type Map = {
   song?: string,
 }
 
-defineProps<{ map: Map }>()
+const p = defineProps<{ map: Map }>()
 
-const screenHeight = ref(window.innerHeight)
-const onScreenResize = ([entry]: [ResizeObserverEntry]) => screenHeight.value = entry.borderBoxSize[0].blockSize
+const { DURATION } = storeToRefs(useGameFieldStore())
 
 const columns = ref<(typeof Column)[]>([])
 onMounted(() => {
@@ -21,16 +23,23 @@ onMounted(() => {
   audio?.addEventListener("canplaythrough", () => {
     columns.value.forEach(c => c.play())
     audio.play()
-    console.log("start playing")
   })
 })
+
+let startDelay = 0 // ms
+watch(() => p.map.cols, (cols) => {
+  if (cols[0].notes.length) {
+    const firstNotes = cols.map(col => col.notes[0])
+    startDelay = Math.max(0, ...firstNotes.map(note => DURATION.value - note.hit_t))
+  }
+}, { deep: true })
 </script>
 
 <template>
   <audio id="audio" :src="map.song"></audio>
   <div class="field">
     <template v-for="(col, i) of map.cols" :key="i">
-      <Column ref="columns" v-bind="col" />
+      <Column ref="columns" v-bind="col" :start-delay />
     </template>
     <judgement class="judgement" />
   </div>
