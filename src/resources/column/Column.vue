@@ -33,7 +33,7 @@ const timer = new Timer()
 
 const handleNoteDrawing = (note: CanvasNote, i: number, delta_t: number) => {
   assert(canvasContext.value !== undefined)
-  note.y += COL_HEIGHT.value / /* fps */ ((1000) / delta_t) * SCROLL_SPEED
+  note.y += SCROLL_SPEED * delta_t
 
   switch (note.type) {
     case NOTE_TYPE.HEAD: {
