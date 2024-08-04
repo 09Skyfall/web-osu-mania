@@ -5,6 +5,7 @@ import { type ColumnProps } from '../column/store';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useGameFieldStore } from './store';
 import { storeToRefs } from 'pinia';
+import Score from '../score/Score.vue';
 import { sum } from 'lodash';
 
 // TODO: spostare
@@ -33,6 +34,8 @@ watch(() => p.map.cols, (cols) => {
     startDelay = Math.max(0, ...firstNotes.map(note => DURATION.value - note.hit_t))
   }
 }, { deep: true })
+
+const totalNotes = computed(() => sum(p.map.cols.map(c => c.notes.length)))
 </script>
 
 <template>
@@ -42,6 +45,7 @@ watch(() => p.map.cols, (cols) => {
       <Column ref="columns" v-bind="col" :start-delay />
     </template>
     <judgement class="judgement" />
+    <score :total-notes="totalNotes" />
   </div>
 </template>
 
