@@ -7,6 +7,7 @@ import { useGameFieldStore } from "./store";
 import { storeToRefs } from "pinia";
 import Score from "../score/Score.vue";
 import { sum } from "lodash";
+import HealthBar from "../health/HealthBar.vue";
 
 // TODO: spostare
 type Map = {
@@ -51,6 +52,7 @@ const totalNotes = computed(() => sum(p.map.cols.map((c) => c.notes.length)));
     <template v-for="(col, i) of map.cols" :key="i">
       <Column ref="columns" v-bind="col" :start-delay />
     </template>
+    <HealthBar />
     <judgement class="judgement" />
     <score :total-notes="totalNotes" />
   </div>
