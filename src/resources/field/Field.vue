@@ -8,6 +8,9 @@ import { storeToRefs } from "pinia";
 import Score from "../score/Score.vue";
 import { sum } from "lodash";
 import HealthBar from "../health/HealthBar.vue";
+import { assert } from "../../utils/assert";
+import PauseOverlay from "./PauseOverlay.vue";
+import { useGamePause } from "./useGamePause";
 
 // TODO: spostare
 type Map = {
@@ -19,12 +22,16 @@ const p = defineProps<{ map: Map }>();
 
 const { DURATION } = storeToRefs(useGameFieldStore());
 
-const columns = ref<(typeof Column)[]>([]);
+const columns = ref<InstanceType<typeof Column>[]>([]);
+const audio = ref<HTMLAudioElement | null>(null);
+
+const { paused } = useGamePause(columns, audio);
+
 onMounted(() => {
-  const audio = document.getElementById("audio") as HTMLAudioElement;
-  audio?.addEventListener("canplaythrough", () => {
+  assert(audio.value, "Expected audio element to be mounted.");
+  audio.value.addEventListener("canplaythrough", () => {
     columns.value.forEach((c) => c.play());
-    audio.play();
+    audio.value!.play();
   });
 });
 
@@ -47,14 +54,19 @@ const totalNotes = computed(() => sum(p.map.cols.map((c) => c.notes.length)));
 </script>
 
 <template>
-  <audio id="audio" :src="map.song"></audio>
+  <audio ref="audio" :src="map.song" />
   <div class="field">
     <template v-for="(col, i) of map.cols" :key="i">
       <Column ref="columns" v-bind="col" :start-delay />
     </template>
+
     <HealthBar />
-    <judgement class="judgement" />
-    <score :total-notes="totalNotes" />
+
+    <Judgement class="judgement" />
+
+    <Score :total-notes="totalNotes" />
+
+    <PauseOverlay :active="paused" />
   </div>
 </template>
 

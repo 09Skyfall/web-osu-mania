@@ -25,7 +25,7 @@ export const useCanvasAnimation = (
     animations.value.push(...toArray(_animations));
   };
 
-  const { animate } = useAnimate((delta_t: number) => {
+  const { play, pause, resume, stop } = useAnimate((delta_t: number) => {
     assert(canvas.value);
     const ctx = canvas.value.getContext("2d");
     assert(ctx);
@@ -34,5 +34,5 @@ export const useCanvasAnimation = (
     animations.value.forEach((animation) => animation(ctx, delta_t));
   }, useAnimateOptions);
 
-  return { animate, add };
+  return { play, pause, resume, stop, add };
 };

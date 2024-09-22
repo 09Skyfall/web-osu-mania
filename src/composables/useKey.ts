@@ -2,8 +2,8 @@ import { ref } from "vue";
 import { useEventListener } from "./useEventListener";
 
 export type UseKeyOptions = {
-  on_key_down?: () => void;
-  on_key_up?: () => void;
+  on_key_down?: (e: KeyboardEvent) => void;
+  on_key_up?: (e: KeyboardEvent) => void;
 };
 
 export const useKey = (
@@ -14,12 +14,12 @@ export const useKey = (
 
   const onKeyDown = (e: Event) => {
     if ((e as KeyboardEvent).code !== key) return;
-    if (options.on_key_down) options.on_key_down();
+    if (options.on_key_down) options.on_key_down(e as KeyboardEvent);
     active.value = true;
   };
   const onKeyUp = (e: Event) => {
     if ((e as KeyboardEvent).code !== key) return;
-    if (options.on_key_up) options.on_key_up();
+    if (options.on_key_up) options.on_key_up(e as KeyboardEvent);
     active.value = false;
   };
 

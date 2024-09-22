@@ -29,7 +29,8 @@ const canvas_notes = ref<CanvasNote[]>([]);
 let currentNote = 0;
 let isFullscreenNote = false;
 let finished = false;
-const active = ref(false);
+const hitKeyActive = ref(false);
+const paused = ref(false);
 const timer = new Timer();
 
 const handleNoteDrawing = (note: CanvasNote, i: number, delta_t: number) => {
@@ -89,7 +90,7 @@ const handleFullscreenNote = () => {
 
 const { drawJudgementLines, judgeDeletedNote } = useJudgement(
   canvas_notes,
-  active,
+  hitKeyActive,
   { SCROLL_SPEED, COL_HEIGHT },
 );
 
@@ -125,13 +126,30 @@ const start: CanvasAnimationFunction = (ctx, delta_t) => {
   if (isFullscreenNote) handleFullscreenNote();
 };
 
-const { animate: play } = useCanvasAnimation(
+const {
+  play,
+  pause: pauseAnimation,
+  resume: resumeAnimation,
+  stop,
+} = useCanvasAnimation(
   canvas,
   { animations: [start, drawJudgementLines] },
   { animateOnMount: false },
 );
 
-defineExpose({ play });
+const pause = () => {
+  paused.value = true;
+  timer.pause();
+  pauseAnimation();
+};
+
+const resume = () => {
+  paused.value = false;
+  timer.resume();
+  resumeAnimation();
+};
+
+defineExpose({ play, pause, resume, stop });
 </script>
 
 <template>
@@ -142,7 +160,7 @@ defineExpose({ play });
       :height="COL_HEIGHT"
       class="canvas"
     />
-    <hit-key v-model="active" :hit-key />
+    <hit-key v-model="hitKeyActive" :disabled="paused" :hit-key />
   </div>
 </template>
 

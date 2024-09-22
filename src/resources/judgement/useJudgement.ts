@@ -1,8 +1,8 @@
 import { computed, watch, type Ref } from "vue";
-import { CanvasAnimationFunction } from "../../composables/useCanvasAnimation";
+import { type CanvasAnimationFunction } from "../../composables/useCanvasAnimation";
 import { inRange, mapValues, remove } from "lodash";
 import { assert } from "../../utils/assert";
-import { Judgement, JUDGEMENT_WINDOWS } from "./store";
+import { type Judgement, JUDGEMENT_WINDOWS } from "./store";
 import { CanvasNote, NOTE_TYPE } from "../note/store";
 import { judgementService } from "./JudgementService";
 
