@@ -1,7 +1,8 @@
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { assert } from "../utils/assert";
 
 export type AnimateFunction = (delta_t: number) => void;
+
 export type UseAnimateOptions = { animateOnMount?: boolean };
 
 export const useAnimate = (
@@ -20,7 +21,7 @@ export const useAnimate = (
 
     if (!paused.value) cb(delta_t.value);
 
-    requestAnimationFrame(_animate);
+    animation_id.value = requestAnimationFrame(_animate);
   };
 
   const play = () => (animation_id.value = requestAnimationFrame(_animate));
@@ -34,12 +35,16 @@ export const useAnimate = (
   };
 
   const stop = () => {
-    assert(animation_id.value, "Cannot stop animation before its start");
-    cancelAnimationFrame(animation_id.value);
+    queueMicrotask(() => {
+      assert(animation_id.value, "Cannot stop animation before its start");
+      cancelAnimationFrame(animation_id.value);
+      last_timestamp.value = null;
+    });
   };
 
-  // TODO: does the callback stop running after unmount? i think not :(
   if (animateOnMount) onMounted(play);
+
+  onUnmounted(stop);
 
   return { play, pause, resume, stop };
 };
