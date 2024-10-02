@@ -1,10 +1,16 @@
 import { onMounted, onUnmounted } from "vue";
+import { normalizeTargetElement } from "../utils/normalizeTargetElement";
 
 export const useEventListener = (
-  target: EventTarget,
+  target: EventTarget | string,
   type: string,
   callback: (e: Event) => void,
 ) => {
-  onMounted(() => target.addEventListener(type, callback));
-  onUnmounted(() => target.removeEventListener(type, callback));
+  onMounted(() => {
+    normalizeTargetElement(target).addEventListener(type, callback);
+  });
+
+  onUnmounted(() => {
+    normalizeTargetElement(target).removeEventListener(type, callback);
+  });
 };
