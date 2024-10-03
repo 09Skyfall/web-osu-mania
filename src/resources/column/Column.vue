@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { Timer } from "../../utils/Timer";
 import HitKey from "../../components/HitKey.vue";
-import { assert } from "../../utils/assert";
+import { assert } from "../../utils/assertions";
 import { forEachRight } from "lodash";
 import { useJudgement } from "../judgement/useJudgement";
 import {

@@ -1,6 +1,6 @@
 import { ref, type Ref } from "vue";
 import { type MaybeArray } from "../types/MaybeArray";
-import { assert } from "../utils/assert";
+import { assert } from "../utils/assertions";
 import { toArray } from "../utils/toArray";
 import { useAnimate, type UseAnimateOptions } from "./useAnimate";
 

@@ -12,7 +12,7 @@ import FpsCounter from "./components/FpsCounter.vue";
 import { Note, NOTE_TYPE } from "./resources/note/store";
 import Field from "./resources/field/Field.vue";
 import { ColumnProps } from "./resources/column/store";
-import { assert } from "./utils/assert";
+import { assert } from "./utils/assertions";
 
 const map = ref<{ song?: string; cols: ColumnProps[] }>({
   cols: [

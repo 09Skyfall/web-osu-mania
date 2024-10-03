@@ -1,6 +1,6 @@
 import { ref, Ref } from "vue";
 import { useKey } from "../../composables/useKey";
-import { assert } from "../../utils/assert";
+import { assert } from "../../utils/assertions";
 import Column from "../column/Column.vue";
 import { useEventListener } from "../../composables/useEventListener";
 

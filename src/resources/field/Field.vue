@@ -8,7 +8,7 @@ import { storeToRefs } from "pinia";
 import Score from "../score/Score.vue";
 import { sum } from "lodash";
 import HealthBar from "../health/HealthBar.vue";
-import { assert } from "../../utils/assert";
+import { assert } from "../../utils/assertions";
 import PauseOverlay from "./PauseOverlay.vue";
 import { useGamePause } from "./useGamePause";
 

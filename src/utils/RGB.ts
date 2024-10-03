@@ -1,5 +1,5 @@
 import { inRange } from "lodash";
-import { assert } from "./assert";
+import { assert } from "./assertions";
 
 export class RGB {
   r: number = 0;

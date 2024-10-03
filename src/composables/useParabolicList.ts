@@ -1,5 +1,5 @@
 import { useMutationObserver } from "./useMutationObserver";
-import { assert } from "../utils/assert";
+import { assert } from "../utils/assertions";
 import { onMounted, onUnmounted, ref } from "vue";
 import { normalizeTargetElement } from "../utils/normalizeTargetElement";
 import { useAnimate } from "./useAnimate";

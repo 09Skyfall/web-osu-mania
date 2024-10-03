@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted, ref } from "vue";
-import { assert } from "../utils/assert";
+import { assert } from "../utils/assertions";
 
 export type AnimateFunction = (delta_t: number) => void;
 

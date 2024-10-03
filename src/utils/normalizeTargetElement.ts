@@ -1,4 +1,4 @@
-import { assert } from "./assert";
+import { assert } from "./assertions";
 
 export const normalizeTargetElement = <T extends EventTarget>(
   target: T | string,
