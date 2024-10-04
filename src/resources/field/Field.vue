@@ -2,9 +2,7 @@
 import Column from "../column/Column.vue";
 import Judgement from "../judgement/Judgement.vue";
 import { type ColumnProps } from "../column/store";
-import { computed, onMounted, ref, watch } from "vue";
-import { useGameFieldStore } from "./store";
-import { storeToRefs } from "pinia";
+import { computed, onMounted, ref } from "vue";
 import Score from "../score/Score.vue";
 import { sum } from "lodash";
 import HealthBar from "../health/HealthBar.vue";
@@ -20,8 +18,6 @@ type Map = {
 
 const p = defineProps<{ map: Map }>();
 
-const { DURATION } = storeToRefs(useGameFieldStore());
-
 const columns = ref<InstanceType<typeof Column>[]>([]);
 const audio = ref<HTMLAudioElement | null>(null);
 
@@ -35,21 +31,6 @@ onMounted(() => {
   });
 });
 
-let startDelay = 0; // ms
-watch(
-  () => p.map.cols,
-  (cols) => {
-    if (cols[0].notes.length) {
-      const firstNotes = cols.map((col) => col.notes[0]);
-      startDelay = Math.max(
-        0,
-        ...firstNotes.map((note) => DURATION.value - note.hit_t),
-      );
-    }
-  },
-  { deep: true },
-);
-
 const totalNotes = computed(() => sum(p.map.cols.map((c) => c.notes.length)));
 </script>
 
@@ -57,7 +38,7 @@ const totalNotes = computed(() => sum(p.map.cols.map((c) => c.notes.length)));
   <audio ref="audio" :src="map.song" />
   <div class="field">
     <template v-for="(col, i) of map.cols" :key="i">
-      <Column ref="columns" v-bind="col" :start-delay />
+      <Column ref="columns" v-bind="col" />
     </template>
 
     <HealthBar />

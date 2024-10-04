@@ -17,7 +17,6 @@ import { useCanvas } from "../../composables/useCanvas";
 const p = defineProps<{
   notes: Note[];
   hitKey: string;
-  startDelay: number;
 }>();
 
 const { SCROLL_SPEED, HIT_KEY_HEIGHT, COL_HEIGHT, COL_WIDTH, DURATION } =
@@ -65,11 +64,8 @@ const handleNoteDrawing = (note: CanvasNote, i: number, delta_t: number) => {
 
 const handleNoteDeletion = (note: CanvasNote, i: number) => {
   // TODO: calcolare il buffer in base a alla window del judgement
-  if (
-    note.y >=
-    COL_HEIGHT.value +
-      100 /* buffer that leaves the note long enough to compute the judgement */
-  ) {
+  const BUFFER = 100; /* buffer that leaves the note long enough to compute the judgement */
+  if (note.y >= COL_HEIGHT.value + BUFFER) {
     if (
       note.type === NOTE_TYPE.HEAD &&
       canvas_notes.value[i + 1] === undefined
@@ -105,10 +101,23 @@ const start: CanvasAnimationFunction = (ctx, delta_t) => {
 
   if (
     !finished &&
-    p.notes[currentNote].hit_t <= timer.elapsed - p.startDelay + DURATION.value
+    p.notes[currentNote].hit_t <= timer.elapsed + DURATION.value
   ) {
-    const { type } = p.notes[currentNote];
-    canvas_notes.value.push(new CanvasNote({ y: 0, type }));
+    const { type, hit_t } = p.notes[currentNote];
+    /**
+     * @doc Potrebbe succedere che all'inizio della mappa le prime note abbiano un hit_t
+     * tale per cui hit_t << DURATION.
+     * Due opzioni -> far partire il timer in anticipo (p.notes[currentNote].hit_t <= timer.elapsed - p.startDelay + DURATION.value)
+     *                dove startDelay = Math.max(0, ...firstNotes.map((note) => DURATION.value - note.hit_t)).
+     *                Così facendo dovrei anche far partire la canzone con startDelay ritardo
+     *             -> Calcolare la posizione y della nuova nota da inserire tale per cui non arrivi in ritardo alla fine del field.
+     *                duration/col_height = (duration - hit_t)/y ==> y = (duration - hit_t) * col_height / duration
+     */
+    const y = Math.max(
+      (DURATION.value - hit_t) * (COL_HEIGHT.value / DURATION.value),
+      0,
+    );
+    canvas_notes.value.push(new CanvasNote({ y, type }));
     currentNote = Math.min(currentNote + 1, p.notes.length - 1);
     if (currentNote === p.notes.length - 1) finished = true;
   }
