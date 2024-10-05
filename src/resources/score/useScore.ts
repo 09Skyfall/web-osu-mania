@@ -8,14 +8,8 @@ import { clamp } from "lodash";
  */
 
 export const useScore = (totalNotes: MaybeRefOrGetter<number>) => {
-  const {
-    judgementScores,
-    MAX_SCORE,
-    MOD_DIVIDER,
-    MOD_MULTIPLIER,
-    MAX_BONUS,
-    MIN_BONUS,
-  } = useScoreStore();
+  const { judgementScores, MAX_SCORE, MOD_DIVIDER, MOD_MULTIPLIER, MAX_BONUS, MIN_BONUS } =
+    useScoreStore();
   const score = ref(0);
   let bonus = MAX_BONUS;
 
@@ -28,11 +22,7 @@ export const useScore = (totalNotes: MaybeRefOrGetter<number>) => {
 
   const calculateBonusScore = (j: Judgement) => {
     const { hitBonus, hitPunishment, hitBonusValue } = judgementScores[j];
-    bonus = clamp(
-      bonus + hitBonus - hitPunishment / MOD_DIVIDER,
-      MIN_BONUS,
-      MAX_BONUS,
-    );
+    bonus = clamp(bonus + hitBonus - hitPunishment / MOD_DIVIDER, MIN_BONUS, MAX_BONUS);
     return (
       ((MAX_SCORE * MOD_MULTIPLIER * 0.5) / toValue(totalNotes)) *
       ((hitBonusValue * Math.sqrt(bonus)) / 320)

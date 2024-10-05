@@ -4,10 +4,7 @@ import { assert } from "../utils/assertions";
 import { toArray } from "../utils/toArray";
 import { useAnimate, type UseAnimateOptions } from "./useAnimate";
 
-export type CanvasAnimationFunction = (
-  ctx: CanvasRenderingContext2D,
-  delta_t: number,
-) => void;
+export type CanvasAnimationFunction = (ctx: CanvasRenderingContext2D, delta_t: number) => void;
 type UseCanvasAnimationOptions = {
   animations?: MaybeArray<CanvasAnimationFunction>;
 };
@@ -19,9 +16,7 @@ export const useCanvasAnimation = (
 ) => {
   const animations = ref([...toArray(options.animations ?? [])]);
 
-  const add = (
-    _animations: Required<UseCanvasAnimationOptions>["animations"],
-  ) => {
+  const add = (_animations: Required<UseCanvasAnimationOptions>["animations"]) => {
     animations.value.push(...toArray(_animations));
   };
 

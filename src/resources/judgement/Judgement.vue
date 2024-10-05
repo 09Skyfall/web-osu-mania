@@ -10,23 +10,17 @@ import { computed } from "vue";
  * an image is freshly fetched
  */
 
-const currentJudgement = timeoutRef<{ value: Judgement; id: string } | null>(
-  null,
-  500,
-);
+const currentJudgement = timeoutRef<{ value: Judgement; id: string } | null>(null, 500);
 
 const baseUrl = "../../../assets/judgment-scores";
 const src = computed(() => {
-  if (currentJudgement.value?.value === "PERFECT")
-    return `${baseUrl}/judgement_perfect.gif`;
+  if (currentJudgement.value?.value === "PERFECT") return `${baseUrl}/judgement_perfect.gif`;
   else if (currentJudgement.value)
     return `${baseUrl}/judgement_${currentJudgement.value.value}.png`;
   return null;
 });
 
-judgementService.onAdd(
-  (j) => (currentJudgement.value = { value: j, id: uniqueId() }),
-);
+judgementService.onAdd((j) => (currentJudgement.value = { value: j, id: uniqueId() }));
 </script>
 
 <template>

@@ -45,9 +45,7 @@ export const useParabolicList = (
     const normalizedRange = valuesRange / (scrollParent.clientHeight / 2);
 
     const width =
-      baseWidth +
-      factor *
-        (type === "positive" ? normalizedRange ** 2 : -(normalizedRange ** 2));
+      baseWidth + factor * (type === "positive" ? normalizedRange ** 2 : -(normalizedRange ** 2));
 
     const multiplier = parseFloat(el.getAttribute("p-multiplier") ?? "1");
 

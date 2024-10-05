@@ -21,19 +21,11 @@ if (p.parabolic) useParabolicList(`#${uid}`, { baseWidth: 700, factor: 100 });
   <component
     :is="tag"
     :id="uid"
-    :class="[
-      { list__bouncy: bouncy, list__parabolic: parabolic },
-      'list__base',
-    ]"
+    :class="[{ list__bouncy: bouncy, list__parabolic: parabolic }, 'list__base']"
   >
     <div class="list__top-bouncer" v-if="bouncy" />
 
-    <slot
-      v-for="(item, i) of items"
-      :key="i"
-      name="item"
-      v-bind="{ item, i }"
-    />
+    <slot v-for="(item, i) of items" :key="i" name="item" v-bind="{ item, i }" />
 
     <div class="list__bottom-bouncer" v-if="bouncy" />
   </component>

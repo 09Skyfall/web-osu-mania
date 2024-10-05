@@ -1,10 +1,4 @@
-import {
-  BlobReader,
-  BlobWriter,
-  Entry,
-  TextWriter,
-  ZipReader,
-} from "@zip.js/zip.js";
+import { BlobReader, BlobWriter, Entry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { assert, nonNull } from "../../utils/assertions";
 import { Note, NOTE_TYPE } from "../note/store";
 import { curry, identity, range } from "lodash";
@@ -57,14 +51,8 @@ const beatmapLevelProperties = new Map([
     PROPERTY_CATEGORY.GENERAL,
     [PROPERTY.AUDIO_FILENAME, PROPERTY.AUDIO_LEAD_IN, PROPERTY.PREVIEW_TIME],
   ],
-  [
-    PROPERTY_CATEGORY.METADATA,
-    [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID],
-  ],
-  [
-    PROPERTY_CATEGORY.DIFFICULTY,
-    [PROPERTY.OVERALL_DIFFICULTY, PROPERTY.CIRCLE_SIZE],
-  ],
+  [PROPERTY_CATEGORY.METADATA, [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID]],
+  [PROPERTY_CATEGORY.DIFFICULTY, [PROPERTY.OVERALL_DIFFICULTY, PROPERTY.CIRCLE_SIZE]],
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
 ]);
 
@@ -117,9 +105,7 @@ const getMediaAsBlobUrl = async (
   textContent: string,
   property: PROPERTY.IMAGE_FILENAME | PROPERTY.AUDIO_FILENAME,
 ) => {
-  const media = entries.find(
-    (e) => e.filename === findPropertyValue(textContent, property),
-  );
+  const media = entries.find((e) => e.filename === findPropertyValue(textContent, property));
   if (!media) return undefined;
 
   assert(media.getData);
@@ -128,10 +114,7 @@ const getMediaAsBlobUrl = async (
 
 // TODO: clean
 const extractHitObjects = (textContent: string, keysCount: number) => {
-  const hitObjectsRaw = findCategoryValue(
-    textContent,
-    PROPERTY_CATEGORY.HIT_OBJECTS,
-  )
+  const hitObjectsRaw = findCategoryValue(textContent, PROPERTY_CATEGORY.HIT_OBJECTS)
     ?.match(/^.*$/gm)
     ?.filter(identity);
 
@@ -156,8 +139,7 @@ const extractHitObjects = (textContent: string, keysCount: number) => {
   );
 };
 
-const getCol = (x_pos: number, n_cols: number) =>
-  Math.floor((x_pos * n_cols) / 512);
+const getCol = (x_pos: number, n_cols: number) => Math.floor((x_pos * n_cols) / 512);
 
 const findPropertyValue = (textContent: string, property: PROPERTY) => {
   const category = [...beatmapLevelProperties.keys()].find((k) =>
@@ -169,23 +151,20 @@ const findPropertyValue = (textContent: string, property: PROPERTY) => {
   switch (category) {
     case PROPERTY_CATEGORY.GENERAL:
     case PROPERTY_CATEGORY.EDITOR:
-      return new RegExp(`^${property}: (?<value>.*)$`, "gm").exec(textContent)
-        ?.groups?.value;
+      return new RegExp(`^${property}: (?<value>.*)$`, "gm").exec(textContent)?.groups?.value;
 
     case PROPERTY_CATEGORY.METADATA:
     case PROPERTY_CATEGORY.DIFFICULTY:
-      return new RegExp(`^${property}:(?<value>.*)$`, "gm").exec(textContent)
-        ?.groups?.value;
+      return new RegExp(`^${property}:(?<value>.*)$`, "gm").exec(textContent)?.groups?.value;
 
     case PROPERTY_CATEGORY.EVENTS: {
       const categoryValue = findCategoryValue(textContent, category);
       if (!categoryValue) return;
 
       if (property === PROPERTY.IMAGE_FILENAME)
-        return new RegExp(
-          /^\/\/Background and Video events\r\n(?=.*"(?<image>.*)")/,
-          "gm",
-        ).exec(categoryValue)?.groups?.image;
+        return new RegExp(/^\/\/Background and Video events\r\n(?=.*"(?<image>.*)")/, "gm").exec(
+          categoryValue,
+        )?.groups?.image;
 
       return undefined;
     }
@@ -194,11 +173,6 @@ const findPropertyValue = (textContent: string, property: PROPERTY) => {
   }
 };
 
-const findCategoryValue = (
-  textContent: string,
-  category: PROPERTY_CATEGORY,
-) => {
-  return new RegExp(`^\\[${category}\\](?<value>(\r\n.+)+)`, "gm").exec(
-    textContent,
-  )?.groups?.value;
+const findCategoryValue = (textContent: string, category: PROPERTY_CATEGORY) => {
+  return new RegExp(`^\\[${category}\\](?<value>(\r\n.+)+)`, "gm").exec(textContent)?.groups?.value;
 };

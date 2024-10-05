@@ -24,9 +24,7 @@ const p = withDefaults(
 );
 
 const percentage = computed(
-  () =>
-    (100 * (Number(p.modelValue) - Number(p.min))) /
-    (Number(p.max) - Number(p.min)),
+  () => (100 * (Number(p.modelValue) - Number(p.min))) / (Number(p.max) - Number(p.min)),
 );
 </script>
 

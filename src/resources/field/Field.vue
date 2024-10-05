@@ -27,9 +27,7 @@ onMounted(() => {
 
 const totalNotes = computed(() => sum(p.map.hitObjects.map(size)));
 const hitKeys = ["a", "s", "k", "l"]; // TODO: take from settings store (?)
-const cols = computed(() =>
-  p.map.hitObjects.map((notes, i) => ({ hitKey: hitKeys[i], notes })),
-);
+const cols = computed(() => p.map.hitObjects.map((notes, i) => ({ hitKey: hitKeys[i], notes })));
 </script>
 
 <template>

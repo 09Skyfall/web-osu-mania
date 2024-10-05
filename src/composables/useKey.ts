@@ -6,10 +6,7 @@ export type UseKeyOptions = {
   on_key_up?: (e: KeyboardEvent) => void;
 };
 
-export const useKey = (
-  key: KeyboardEvent["code"],
-  options: UseKeyOptions = {},
-) => {
+export const useKey = (key: KeyboardEvent["code"], options: UseKeyOptions = {}) => {
   const active = ref(false);
 
   const onKeyDown = (e: Event) => {

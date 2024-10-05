@@ -49,9 +49,7 @@ export const useJudgement = (
 
   const onKeyPressChange = (pressed: boolean) => {
     const toBeJudged = notes.value
-      .filter((note) =>
-        inRange(note.y, windows.value.MISS.top, windows.value.MISS.bottom + 1),
-      )
+      .filter((note) => inRange(note.y, windows.value.MISS.top, windows.value.MISS.bottom + 1))
       .find((note) => !judged.includes(note.id));
 
     if (pressed) {
@@ -60,10 +58,7 @@ export const useJudgement = (
       judge(toBeJudged);
     } else if (!pressed && judgingLongNote) {
       if (toBeJudged) {
-        assert(
-          toBeJudged.type === NOTE_TYPE.TAIL,
-          "Expected note to be of type TAIL",
-        );
+        assert(toBeJudged.type === NOTE_TYPE.TAIL, "Expected note to be of type TAIL");
         judge(toBeJudged);
       } else {
         // TODO: implement earlyRelease logic (prevents judgements better than MEH for tail note)

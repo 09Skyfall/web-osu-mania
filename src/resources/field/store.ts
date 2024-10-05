@@ -3,9 +3,7 @@ import { computed, ref } from "vue";
 import { useResize } from "../../composables/useResize";
 
 export const useGameFieldStore = defineStore("game-field", () => {
-  const { borderBoxBlock: screenHeight } = useResize(
-    window.document.documentElement,
-  );
+  const { borderBoxBlock: screenHeight } = useResize(window.document.documentElement);
 
   const SCROLL_SPEED = ref(1.5); // px/ms
   const HIT_KEY_HEIGHT = ref(100); // px
