@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import Column from "../column/Column.vue";
 import Judgement from "../judgement/Judgement.vue";
-import { type ColumnProps } from "../column/store";
 import { computed, onMounted, ref } from "vue";
 import Score from "../score/Score.vue";
-import { sum } from "lodash";
+import { size, sum } from "lodash";
 import HealthBar from "../health/HealthBar.vue";
 import { assert } from "../../utils/assertions";
 import PauseOverlay from "./PauseOverlay.vue";
 import { useGamePause } from "./useGamePause";
+import { BeatmapLevel } from "../beatmap/store";
 
-// TODO: spostare
-type Map = {
-  cols: ColumnProps[];
-  song?: string;
-};
-
-const p = defineProps<{ map: Map }>();
+const p = defineProps<{ map: BeatmapLevel }>();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
 const audio = ref<HTMLAudioElement | null>(null);
@@ -31,13 +25,18 @@ onMounted(() => {
   });
 });
 
-const totalNotes = computed(() => sum(p.map.cols.map((c) => c.notes.length)));
+const totalNotes = computed(() => sum(p.map.hitObjects.map(size)));
+const hitKeys = ["a", "s", "k", "l"]; // TODO: take from settings store (?)
+const cols = computed(() =>
+  p.map.hitObjects.map((notes, i) => ({ hitKey: hitKeys[i], notes })),
+);
 </script>
 
 <template>
-  <audio ref="audio" :src="map.song" />
+  <audio ref="audio" :src="map.audio.source" />
+
   <div class="field">
-    <template v-for="(col, i) of map.cols" :key="i">
+    <template v-for="(col, i) of cols" :key="i">
       <Column ref="columns" v-bind="col" />
     </template>
 
