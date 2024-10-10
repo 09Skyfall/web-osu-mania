@@ -51,9 +51,4 @@ if (p.parabolic) useParabolicList(`#${uid}`, { baseWidth: 700, factor: 100 });
 .list__base.list__bouncy > *:not(.list__bottom-bouncer, .list__top-bouncer) {
   scroll-snap-align: center;
 }
-
-.list__base.list__parabolic > *:not([p-skip]) {
-  opacity: 0;
-  transition: opacity 100ms;
-}
 </style>

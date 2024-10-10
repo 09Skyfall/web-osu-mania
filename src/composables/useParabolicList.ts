@@ -11,6 +11,8 @@ import { getScrollParent } from "../utils/getScrollParent";
  *    - rootMargins negativi sulle y (ma sembra che fuori dalla viewPort non funzioni)
  *    - all'intersezione di un el aggiungere nei visibleElements anche i fratelli più vicini
  *    -> risolto con una soluzione più banale: opacity a 0 fintanto che non ho calcolato la width
+ *    -> soluzione successiva: rimosso opacity e semplicemente calcolato la width la prima volta
+ *       dentro il mutationObserver.
  *
  * Special Attributes:
  *  - p-skip: skips width computation on the element
@@ -36,12 +38,15 @@ export const useParabolicList = (
 
     if (scrollParent === null) return;
 
-    const offsetFromTopBorder = el.offsetTop - scrollParent.scrollTop;
+    const offsetFromTopBorder = Math.min(
+      el.offsetTop - scrollParent.scrollTop,
+      scrollParent.clientHeight,
+    );
 
-    // values inside the range [-scrollParent.clientHeight / 2, +scrollParent.clientHeight / 2]
+    // values inside the range [~-scrollParent.clientHeight / 2, +scrollParent.clientHeight / 2]
     const valuesRange = offsetFromTopBorder - scrollParent.clientHeight / 2;
 
-    // values inside the range [-1, +1]
+    // values inside the range [~-1, +1]
     const normalizedRange = valuesRange / (scrollParent.clientHeight / 2);
 
     const width =
@@ -50,7 +55,6 @@ export const useParabolicList = (
     const multiplier = parseFloat(el.getAttribute("p-multiplier") ?? "1");
 
     el.style.width = `${width * multiplier}px`;
-    el.style.opacity = "1";
   };
 
   const intersectionObserver = new IntersectionObserver((entries) => {
@@ -64,7 +68,6 @@ export const useParabolicList = (
         visibleElements.add(entry.target);
       } else {
         assert(entry.target instanceof HTMLElement);
-        entry.target.style.opacity = "0";
         visibleElements.delete(entry.target);
       }
     });
@@ -81,13 +84,19 @@ export const useParabolicList = (
   const onMutation = (m: MutationRecord) => {
     m.addedNodes.forEach((node) => {
       if (node.nodeType !== Node.ELEMENT_NODE) return;
-      assert(node instanceof Element, "Expected node to be of type Element");
+
+      assert(node instanceof HTMLElement, "Expected node to be of type Element");
+
+      if (node.getAttribute("p-skip") === null) setElementWidth(node);
+
       intersectionObserver.observe(node);
     });
 
     m.removedNodes.forEach((node) => {
       if (node.nodeType !== Node.ELEMENT_NODE) return;
-      assert(node instanceof Element, "Expected node to be of type Element");
+
+      assert(node instanceof HTMLElement, "Expected node to be of type Element");
+
       intersectionObserver.unobserve(node);
     });
   };
