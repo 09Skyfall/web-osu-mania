@@ -14,7 +14,7 @@ const p = withDefaults(
 
 const uid = uniqueId("list-");
 
-if (p.parabolic) useParabolicList(`#${uid}`, { baseWidth: 700, factor: 100 });
+if (p.parabolic) useParabolicList(`#${uid}`, { baseWidth: 1000, factor: 100 });
 </script>
 
 <template>

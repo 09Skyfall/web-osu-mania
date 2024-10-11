@@ -4,23 +4,24 @@ import { Note, NOTE_TYPE } from "../note/store";
 import { curry, identity, range } from "lodash";
 import { mapAsync } from "../../utils/mapAsync";
 
-export type Beatmap = {
+export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
-  levels: BeatmapLevel[];
+  levels: BeatmapLevel<SourceType>[];
 };
 
-export type BeatmapLevel = {
+export type BeatmapLevel<SourceType extends string | Blob = Blob> = {
+  id: string;
   title: string;
   artist: string;
   OverallDifficulty: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   hitObjects: Note[][];
   keysCount: number;
   audio: {
-    source: string;
+    source: SourceType;
     delay: number;
     previewTime: number;
   };
-  imageSource?: string;
+  imageSource?: SourceType;
 };
 
 enum PROPERTY {
@@ -30,6 +31,7 @@ enum PROPERTY {
   TITLE = "Title",
   ARTIST = "Artist",
   BEATMAP_SET_ID = "BeatmapSetID",
+  BEATMAP_LEVEL_ID = "BeatmapID",
   OVERALL_DIFFICULTY = "OverallDifficulty",
   CIRCLE_SIZE = "CircleSize", // Corresponds to column count in osu!mania
   IMAGE_FILENAME = "ImageFilename",
@@ -51,7 +53,10 @@ const beatmapLevelProperties = new Map([
     PROPERTY_CATEGORY.GENERAL,
     [PROPERTY.AUDIO_FILENAME, PROPERTY.AUDIO_LEAD_IN, PROPERTY.PREVIEW_TIME],
   ],
-  [PROPERTY_CATEGORY.METADATA, [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID]],
+  [
+    PROPERTY_CATEGORY.METADATA,
+    [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID, PROPERTY.BEATMAP_LEVEL_ID],
+  ],
   [PROPERTY_CATEGORY.DIFFICULTY, [PROPERTY.OVERALL_DIFFICULTY, PROPERTY.CIRCLE_SIZE]],
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
 ]);
@@ -77,9 +82,10 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
       beatmapId = nonNull(valueOf(PROPERTY.BEATMAP_SET_ID));
 
       const keysCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
-      const c_getMediaUrl = curry(getMediaAsBlobUrl)(entries)(textContent);
+      const c_getMedia = curry(getMediaAsBlob)(entries)(textContent);
 
       return {
+        id: nonNull(valueOf(PROPERTY.BEATMAP_LEVEL_ID)),
         title: nonNull(valueOf(PROPERTY.TITLE)),
         artist: nonNull(valueOf(PROPERTY.ARTIST)),
         OverallDifficulty: Number(
@@ -88,11 +94,11 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
         hitObjects: extractHitObjects(textContent, keysCount),
         keysCount,
         audio: {
-          source: nonNull(await c_getMediaUrl(PROPERTY.AUDIO_FILENAME)),
+          source: nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME)),
           delay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
           previewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
         },
-        imageSource: await c_getMediaUrl(PROPERTY.IMAGE_FILENAME),
+        imageSource: await c_getMedia(PROPERTY.IMAGE_FILENAME),
       } satisfies BeatmapLevel;
     },
   );
@@ -100,7 +106,7 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
   return { id: nonNull(beatmapId), levels: beatmapLevels };
 };
 
-const getMediaAsBlobUrl = async (
+const getMediaAsBlob = async (
   entries: Entry[],
   textContent: string,
   property: PROPERTY.IMAGE_FILENAME | PROPERTY.AUDIO_FILENAME,
@@ -109,7 +115,7 @@ const getMediaAsBlobUrl = async (
   if (!media) return undefined;
 
   assert(media.getData);
-  return URL.createObjectURL(await media.getData(new BlobWriter()));
+  return media.getData(new BlobWriter()); // TODO: mimetype??;
 };
 
 // TODO: clean

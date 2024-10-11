@@ -10,7 +10,7 @@ import PauseOverlay from "./PauseOverlay.vue";
 import { useGamePause } from "./useGamePause";
 import { BeatmapLevel } from "../beatmap/store";
 
-const p = defineProps<{ map: BeatmapLevel }>();
+const p = defineProps<{ map: BeatmapLevel<string> }>();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
 const audio = ref<HTMLAudioElement | null>(null);
