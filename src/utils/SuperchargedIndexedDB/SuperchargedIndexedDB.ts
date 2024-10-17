@@ -13,8 +13,8 @@ export class SuperchargedIndexedDB<T extends SCIDBObjectStores = Record<string, 
     return scidbVersion;
   }
 
-  async objectStore(name: keyof T & string) {
-    return new SCIDBObjectStore<T[typeof name]>(await this.database, name);
+  async objectStore<Store extends keyof T & string>(store: Store) {
+    return new SCIDBObjectStore<T[Store]>(await this.database, store);
   }
 }
 

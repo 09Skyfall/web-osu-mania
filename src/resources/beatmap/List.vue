@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import List from "../../components/List.vue";
+import { assert } from "../../utils/assertions";
 import { Beatmap } from "./store";
 import { ref, watch } from "vue";
 
@@ -10,6 +11,12 @@ const levelSelected = ref<string | null>(null);
 
 const isBeatmapSelected = (id: string) => beatmapSelected.value === id;
 const isLevelSelected = (id: string) => levelSelected.value === id;
+
+const onSelectBeatmap = (e: Event, id: string) => {
+  beatmapSelected.value = id;
+  assert(e.target instanceof HTMLElement);
+  e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+};
 
 watch(beatmapSelected, (id) => {
   if (!id) return;
@@ -25,15 +32,12 @@ watch(beatmapSelected, (id) => {
       <li
         class="list-item beatmap-list-item"
         :class="{ selected: isBeatmapSelected(beatmap.id) }"
-        :style="`--background-image-src: url('${beatmap.levels[0].imageSource}')`"
+        :style="`--background-image-src: url('${beatmap.imageSource}')`"
         :p-multiplier="isBeatmapSelected(beatmap.id) ? 1.1 : 1"
-        @click="beatmapSelected = beatmap.id"
+        @click="onSelectBeatmap($event, beatmap.id)"
       >
         {{ beatmap.id }}
       </li>
-      <!-- TODO: when selecting beatmap should always put it on the center
-          if scrolling up, sould overshoot by levels_n * LEVEL_HEIGHT, otherwise not.
-        -->
       <!-- todo: unfold animation -->
       <template v-if="isBeatmapSelected(beatmap.id)">
         <li
@@ -64,7 +68,7 @@ watch(beatmapSelected, (id) => {
 .list-item.selected {
   box-shadow: white 0 0 8px 0;
   border: 1px solid white;
-  margin-top: 8px;
+  margin: 8px 0;
   position: relative;
 }
 

@@ -11,12 +11,14 @@ export class SCIDBObjectStore<T = unknown> {
     this._objectStoreName = objectStoreName;
   }
 
-  get(key: IDBValidKey): Promise<T>;
+  async get(key: IDBValidKey): Promise<T>;
 
-  get(key?: IDBValidKey): Promise<T[]>;
+  async get(key?: undefined): Promise<T[]>;
 
-  get(key?: IDBValidKey): Promise<MaybeArray<T>> {
-    return this._transaction((objectStore) => {
+  async get(key?: IDBValidKey | undefined): Promise<MaybeArray<T>>; // https://github.com/microsoft/TypeScript/issues/14107
+
+  async get(key?: IDBValidKey | undefined): Promise<MaybeArray<T>> {
+    const request = await this._transaction((objectStore) => {
       let request: IDBRequest<T[]>;
       if (key) {
         request = objectStore.get(key);
@@ -25,31 +27,63 @@ export class SCIDBObjectStore<T = unknown> {
       }
       return request;
     });
+
+    return request.result;
   }
 
   remove() {
     throw new Error("Missing implementation");
   }
 
-  add(items: MaybeArray<T>, key?: IDBValidKey) {
-    return this._transaction(
+  async add(items: MaybeArray<T>, key?: IDBValidKey) {
+    const requests = await this._transaction(
       (objectStore) => toArray(items).map((item) => objectStore.add(item, key)),
       "readwrite",
     );
+
+    return requests.map((request) => request.result);
+  }
+
+  async *where(query: IDBKeyRange): AsyncGenerator<T, void, unknown> {
+    let finished = false;
+    let _query = query;
+
+    while (!finished) {
+      const value = await this._transaction((objectStore) => {
+        const cursorRequest = objectStore.openCursor(_query);
+
+        return new Promise<T | null>((res) => {
+          cursorRequest.addEventListener("success", () => {
+            const cursor = cursorRequest.result;
+
+            if (!cursor) {
+              finished = true;
+            } else {
+              _query = IDBKeyRange.lowerBound(cursor.key, true); // TODO: all bounds
+            }
+
+            res(cursor?.value ?? null);
+          });
+        });
+      });
+
+      if (value === null) return;
+      else yield value;
+    }
   }
 
   private async _transaction<T>(
-    cb: (store: IDBObjectStore) => MaybePromise<IDBRequest<T>>,
+    cb: (store: IDBObjectStore) => MaybePromise<T>,
     mode?: IDBTransactionMode,
   ): Promise<T>;
 
   private async _transaction<T>(
-    cb: (store: IDBObjectStore) => MaybePromise<IDBRequest<T>[]>,
+    cb: (store: IDBObjectStore) => MaybePromise<T[]>,
     mode?: IDBTransactionMode,
   ): Promise<T[]>;
 
   private async _transaction<T>(
-    cb: (store: IDBObjectStore) => MaybePromise<MaybeArray<IDBRequest<T>>>,
+    cb: (store: IDBObjectStore) => MaybePromise<MaybeArray<T>>,
     mode?: IDBTransactionMode,
   ): Promise<MaybeArray<T>> {
     const objectStore = this._database
@@ -58,17 +92,15 @@ export class SCIDBObjectStore<T = unknown> {
 
     const transaction = objectStore.transaction;
 
-    const requests = await cb(objectStore);
+    const results = await cb(objectStore);
 
     return new Promise((res, rej) => {
-      transaction.addEventListener(
-        "complete",
-        () => res(Array.isArray(requests) ? requests.map((r) => r.result) : requests.result),
-        { once: true },
-      );
+      transaction.addEventListener("complete", () => res(results), { once: true });
+
       transaction.addEventListener("error", (e) => rej((e.target as IDBRequest).error), {
         once: true,
       });
+
       transaction.addEventListener("abort", () => rej(transaction.error), { once: true });
     });
   }

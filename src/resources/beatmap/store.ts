@@ -6,22 +6,20 @@ import { mapAsync } from "../../utils/mapAsync";
 
 export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
-  levels: BeatmapLevel<SourceType>[];
+  levels: BeatmapLevel[];
+  audioSource: SourceType;
+  imageSource?: SourceType;
 };
 
-export type BeatmapLevel<SourceType extends string | Blob = Blob> = {
+export type BeatmapLevel = {
   id: string;
   title: string;
   artist: string;
   OverallDifficulty: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   hitObjects: Note[][];
   keysCount: number;
-  audio: {
-    source: SourceType;
-    delay: number;
-    previewTime: number;
-  };
-  imageSource?: SourceType;
+  audioDelay: number;
+  audioPreviewTime: number;
 };
 
 enum PROPERTY {
@@ -68,6 +66,8 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
   const entries = await reader.getEntries();
 
   let beatmapId: null | string = null;
+  let imageSource: undefined | Blob = undefined;
+  let audioSource: null | Blob = null;
 
   const beatmapLevels = await mapAsync<Entry, BeatmapLevel>(
     entries.filter((e) => e.filename.endsWith(".osu")),
@@ -79,10 +79,13 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
         return findPropertyValue(textContent, property);
       };
 
-      beatmapId = nonNull(valueOf(PROPERTY.BEATMAP_SET_ID));
+      const c_getMedia = curry(getMediaAsBlob)(entries)(textContent);
+
+      beatmapId ??= nonNull(valueOf(PROPERTY.BEATMAP_SET_ID));
+      audioSource ??= nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME));
+      imageSource ??= await c_getMedia(PROPERTY.IMAGE_FILENAME);
 
       const keysCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
-      const c_getMedia = curry(getMediaAsBlob)(entries)(textContent);
 
       return {
         id: nonNull(valueOf(PROPERTY.BEATMAP_LEVEL_ID)),
@@ -93,17 +96,18 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
         ) as BeatmapLevel["OverallDifficulty"],
         hitObjects: extractHitObjects(textContent, keysCount),
         keysCount,
-        audio: {
-          source: nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME)),
-          delay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
-          previewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
-        },
-        imageSource: await c_getMedia(PROPERTY.IMAGE_FILENAME),
+        audioDelay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
+        audioPreviewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
       } satisfies BeatmapLevel;
     },
   );
 
-  return { id: nonNull(beatmapId), levels: beatmapLevels };
+  return {
+    id: nonNull(beatmapId),
+    audioSource: nonNull(audioSource),
+    imageSource,
+    levels: beatmapLevels,
+  };
 };
 
 const getMediaAsBlob = async (
