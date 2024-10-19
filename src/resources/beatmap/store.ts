@@ -4,23 +4,22 @@ import { Note, NOTE_TYPE } from "../note/store";
 import { curry, identity, range } from "lodash";
 import { mapAsync } from "../../utils/mapAsync";
 
-export type Beatmap = {
+export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
   levels: BeatmapLevel[];
+  audioSource: SourceType;
+  imageSource?: SourceType;
 };
 
 export type BeatmapLevel = {
+  id: string;
   title: string;
   artist: string;
   OverallDifficulty: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   hitObjects: Note[][];
   keysCount: number;
-  audio: {
-    source: string;
-    delay: number;
-    previewTime: number;
-  };
-  imageSource?: string;
+  audioDelay: number;
+  audioPreviewTime: number;
 };
 
 enum PROPERTY {
@@ -30,6 +29,7 @@ enum PROPERTY {
   TITLE = "Title",
   ARTIST = "Artist",
   BEATMAP_SET_ID = "BeatmapSetID",
+  BEATMAP_LEVEL_ID = "BeatmapID",
   OVERALL_DIFFICULTY = "OverallDifficulty",
   CIRCLE_SIZE = "CircleSize", // Corresponds to column count in osu!mania
   IMAGE_FILENAME = "ImageFilename",
@@ -51,7 +51,10 @@ const beatmapLevelProperties = new Map([
     PROPERTY_CATEGORY.GENERAL,
     [PROPERTY.AUDIO_FILENAME, PROPERTY.AUDIO_LEAD_IN, PROPERTY.PREVIEW_TIME],
   ],
-  [PROPERTY_CATEGORY.METADATA, [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID]],
+  [
+    PROPERTY_CATEGORY.METADATA,
+    [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID, PROPERTY.BEATMAP_LEVEL_ID],
+  ],
   [PROPERTY_CATEGORY.DIFFICULTY, [PROPERTY.OVERALL_DIFFICULTY, PROPERTY.CIRCLE_SIZE]],
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
 ]);
@@ -63,6 +66,8 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
   const entries = await reader.getEntries();
 
   let beatmapId: null | string = null;
+  let imageSource: undefined | Blob = undefined;
+  let audioSource: null | Blob = null;
 
   const beatmapLevels = await mapAsync<Entry, BeatmapLevel>(
     entries.filter((e) => e.filename.endsWith(".osu")),
@@ -74,12 +79,16 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
         return findPropertyValue(textContent, property);
       };
 
-      beatmapId = nonNull(valueOf(PROPERTY.BEATMAP_SET_ID));
+      const c_getMedia = curry(getMediaAsBlob)(entries)(textContent);
+
+      beatmapId ??= nonNull(valueOf(PROPERTY.BEATMAP_SET_ID));
+      audioSource ??= nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME));
+      imageSource ??= await c_getMedia(PROPERTY.IMAGE_FILENAME);
 
       const keysCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
-      const c_getMediaUrl = curry(getMediaAsBlobUrl)(entries)(textContent);
 
       return {
+        id: nonNull(valueOf(PROPERTY.BEATMAP_LEVEL_ID)),
         title: nonNull(valueOf(PROPERTY.TITLE)),
         artist: nonNull(valueOf(PROPERTY.ARTIST)),
         OverallDifficulty: Number(
@@ -87,20 +96,21 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
         ) as BeatmapLevel["OverallDifficulty"],
         hitObjects: extractHitObjects(textContent, keysCount),
         keysCount,
-        audio: {
-          source: nonNull(await c_getMediaUrl(PROPERTY.AUDIO_FILENAME)),
-          delay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
-          previewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
-        },
-        imageSource: await c_getMediaUrl(PROPERTY.IMAGE_FILENAME),
+        audioDelay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
+        audioPreviewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
       } satisfies BeatmapLevel;
     },
   );
 
-  return { id: nonNull(beatmapId), levels: beatmapLevels };
+  return {
+    id: nonNull(beatmapId),
+    audioSource: nonNull(audioSource),
+    imageSource,
+    levels: beatmapLevels,
+  };
 };
 
-const getMediaAsBlobUrl = async (
+const getMediaAsBlob = async (
   entries: Entry[],
   textContent: string,
   property: PROPERTY.IMAGE_FILENAME | PROPERTY.AUDIO_FILENAME,
@@ -109,7 +119,7 @@ const getMediaAsBlobUrl = async (
   if (!media) return undefined;
 
   assert(media.getData);
-  return URL.createObjectURL(await media.getData(new BlobWriter()));
+  return media.getData(new BlobWriter()); // TODO: mimetype??;
 };
 
 // TODO: clean

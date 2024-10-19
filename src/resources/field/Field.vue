@@ -10,7 +10,7 @@ import PauseOverlay from "./PauseOverlay.vue";
 import { useGamePause } from "./useGamePause";
 import { BeatmapLevel } from "../beatmap/store";
 
-const p = defineProps<{ map: BeatmapLevel }>();
+const p = defineProps<{ level: BeatmapLevel; song: string }>();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
 const audio = ref<HTMLAudioElement | null>(null);
@@ -25,13 +25,13 @@ onMounted(() => {
   });
 });
 
-const totalNotes = computed(() => sum(p.map.hitObjects.map(size)));
+const totalNotes = computed(() => sum(p.level.hitObjects.map(size)));
 const hitKeys = ["a", "s", "k", "l"]; // TODO: take from settings store (?)
-const cols = computed(() => p.map.hitObjects.map((notes, i) => ({ hitKey: hitKeys[i], notes })));
+const cols = computed(() => p.level.hitObjects.map((notes, i) => ({ hitKey: hitKeys[i], notes })));
 </script>
 
 <template>
-  <audio ref="audio" :src="map.audio.source" />
+  <audio ref="audio" :src="song" />
 
   <div class="field">
     <template v-for="(col, i) of cols" :key="i">
