@@ -42,6 +42,16 @@ export const blobToAudioChunks = async (
     numberOfChannels,
   }));
 };
+
+export const audioChunkToAudioBuffer = (chunk: AudioChunk): AudioBuffer => {
+  const { channels, length, numberOfChannels, sampleRate } = chunk;
+
+  const buffer = new AudioBuffer({ length, numberOfChannels, sampleRate });
+  channels.forEach((channel, i) => buffer.copyToChannel(channel, i));
+
+  return buffer;
+};
+
 /**
  * @param offset in seconds
  */
