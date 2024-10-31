@@ -19,6 +19,15 @@ const routes: RouteRecordRaw[] = [
     props: true,
     component: () => import("../views/Play.vue"),
   },
+  {
+    path: "/benchmarks",
+    children: [
+      {
+        path: "canvas-clear",
+        component: () => import("../../benchmarks/canvas-clear/CanvasClear.vue"),
+      },
+    ],
+  },
   { path: "/:pathMatch(.*)*", component: h("h1", "404") }, // TODO
 ];
 
