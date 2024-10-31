@@ -15,8 +15,6 @@ export class SCIDBObjectStore<T = unknown> {
 
   async get(key?: undefined): Promise<T[]>;
 
-  async get(key?: IDBValidKey | undefined): Promise<MaybeArray<T>>; // https://github.com/microsoft/TypeScript/issues/14107
-
   async get(key?: IDBValidKey | undefined): Promise<MaybeArray<T>> {
     const request = await this._transaction((objectStore) => {
       let request: IDBRequest<T[]>;

@@ -58,10 +58,21 @@ class BeatmapsDatabase {
     throw new Error("Missing implementation");
   }
 
+  async getItem<Store extends keyof BeatmapsDB>(
+    store: Store,
+    key: IDBValidKey,
+  ): Promise<BeatmapsDB[Store]>;
+
+  async getItem<Store extends keyof BeatmapsDB>(
+    store: Store,
+    key?: undefined,
+  ): Promise<BeatmapsDB[Store][]>;
+
   async getItem<Store extends keyof BeatmapsDB>(store: Store, key?: IDBValidKey | undefined) {
     assert(this.db, "Cannot get item before opening the connection to the databse.");
 
     const objectStore = await this.db.objectStore(store);
+    // @ts-expect-error https://github.com/microsoft/TypeScript/issues/14107
     return objectStore.get(key);
   }
 
