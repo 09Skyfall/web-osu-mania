@@ -3,6 +3,7 @@ import { assert, nonNull } from "../../utils/assertions";
 import { Note, NOTE_TYPE } from "../note/store";
 import { curry, identity, range } from "lodash";
 import { mapAsync } from "../../utils/mapAsync";
+import { MANIA_KEY_MODE } from "../field/store";
 
 export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
@@ -13,13 +14,14 @@ export type Beatmap<SourceType extends string | Blob = Blob> = {
 
 export type BeatmapLevel = {
   id: string;
-  title: string;
-  artist: string;
+  title: string; // TOOD: hoist
+  levelTitle: string; // TODO: rename to "title" after hoisting other properties
+  artist: string; // TOOD: hoist
   OverallDifficulty: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   hitObjects: Note[][];
-  keysCount: number;
+  keyMode: MANIA_KEY_MODE;
   audioDelay: number;
-  audioPreviewTime: number;
+  audioPreviewTime: number; // TOOD: hoist
 };
 
 enum PROPERTY {
@@ -33,6 +35,7 @@ enum PROPERTY {
   OVERALL_DIFFICULTY = "OverallDifficulty",
   CIRCLE_SIZE = "CircleSize", // Corresponds to column count in osu!mania
   IMAGE_FILENAME = "ImageFilename",
+  VERSION = "Version",
 }
 
 enum PROPERTY_CATEGORY {
@@ -53,7 +56,13 @@ const beatmapLevelProperties = new Map([
   ],
   [
     PROPERTY_CATEGORY.METADATA,
-    [PROPERTY.TITLE, PROPERTY.ARTIST, PROPERTY.BEATMAP_SET_ID, PROPERTY.BEATMAP_LEVEL_ID],
+    [
+      PROPERTY.TITLE,
+      PROPERTY.ARTIST,
+      PROPERTY.VERSION,
+      PROPERTY.BEATMAP_SET_ID,
+      PROPERTY.BEATMAP_LEVEL_ID,
+    ],
   ],
   [PROPERTY_CATEGORY.DIFFICULTY, [PROPERTY.OVERALL_DIFFICULTY, PROPERTY.CIRCLE_SIZE]],
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
@@ -85,17 +94,29 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
       audioSource ??= nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME));
       imageSource ??= await c_getMedia(PROPERTY.IMAGE_FILENAME);
 
-      const keysCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
+      let keyMode;
+      const keyCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
+      switch (keyCount) {
+        case 4:
+          keyMode = MANIA_KEY_MODE["4K"];
+          break;
+        case 7:
+          keyMode = MANIA_KEY_MODE["7K"];
+          break;
+        default:
+          throw new Error(`Key count of ${keyCount} is not yet supported.`);
+      }
 
       return {
         id: nonNull(valueOf(PROPERTY.BEATMAP_LEVEL_ID)),
         title: nonNull(valueOf(PROPERTY.TITLE)),
+        levelTitle: nonNull(valueOf(PROPERTY.VERSION)),
         artist: nonNull(valueOf(PROPERTY.ARTIST)),
         OverallDifficulty: Number(
           nonNull(valueOf(PROPERTY.OVERALL_DIFFICULTY)),
         ) as BeatmapLevel["OverallDifficulty"],
-        hitObjects: extractHitObjects(textContent, keysCount),
-        keysCount,
+        hitObjects: extractHitObjects(textContent, keyCount),
+        keyMode,
         audioDelay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
         audioPreviewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
       } satisfies BeatmapLevel;

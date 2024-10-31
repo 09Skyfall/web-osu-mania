@@ -1,24 +1,20 @@
 import { computed, watch, type Ref } from "vue";
-import { type CanvasAnimationFunction } from "../../composables/useCanvasAnimation";
 import { inRange, mapValues, remove } from "lodash";
 import { assert } from "../../utils/assertions";
 import { type Judgement, JUDGEMENT_WINDOWS } from "./store";
 import { CanvasNote, NOTE_TYPE } from "../note/store";
 import { judgementService } from "./JudgementService";
+import { GAME_STATE, useGameFieldStore } from "../field/store";
+import { storeToRefs } from "pinia";
+import { useKey } from "../../composables/useKey";
 
-type UseJudgementOptions = {
-  SCROLL_SPEED: Ref<number>;
-  COL_HEIGHT: Ref<number>;
-};
+export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
+  const { SCROLL_SPEED, COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());
 
-export const useJudgement = (
-  notes: Ref<CanvasNote[]>,
-  keyPressed: Ref<boolean>,
-  options: UseJudgementOptions,
-) => {
-  const { SCROLL_SPEED, COL_HEIGHT } = options;
+  const { active } = useKey(key); // TODO: aggiungere stato di pausa
 
   const judged: string[] = [];
+  // TODO: potrebbe essere un composable JudgementWindows da passare come parametro a Judgement
   const windows = computed(() =>
     mapValues(JUDGEMENT_WINDOWS, (jw) => ({
       top: COL_HEIGHT.value - (SCROLL_SPEED.value * jw) / 2,
@@ -30,7 +26,8 @@ export const useJudgement = (
   let judgingLongNote = false;
   let earlyRelease = false;
 
-  const drawJudgementLines: CanvasAnimationFunction = (ctx) => {
+  // TODO: spostare nel composable usejudgementwindows
+  const drawJudgementLines = (ctx) => {
     Object.values(windows.value).forEach(({ top }) => {
       ctx.fillStyle = "red";
       ctx.fillRect(0, top, 100, 1);
@@ -47,8 +44,11 @@ export const useJudgement = (
     }
   };
 
-  const onKeyPressChange = (pressed: boolean) => {
+  const onKeyPress = (pressed: boolean) => {
+    if (gameState.value === GAME_STATE.PAUSED) return;
+
     const toBeJudged = notes.value
+      // TODO: trasformare in un'unica find
       .filter((note) => inRange(note.y, windows.value.MISS.top, windows.value.MISS.bottom + 1))
       .find((note) => !judged.includes(note.id));
 
@@ -82,7 +82,7 @@ export const useJudgement = (
     }
   };
 
-  watch(keyPressed, onKeyPressChange);
+  watch(active, onKeyPress);
 
-  return { drawJudgementLines, judgeDeletedNote, windows };
+  return { judgeDeletedNote };
 };

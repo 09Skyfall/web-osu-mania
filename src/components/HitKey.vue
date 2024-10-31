@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useKey } from "../composables/useKey";
+import { RGB } from "../utils/RGB";
+import { GAME_STATE, useGameFieldStore } from "../resources/field/store";
+import { computed } from "vue";
 
-const emit = defineEmits(["update:model-value"]);
-const p = defineProps<{ hitKey: string; disabled?: boolean }>();
+// TODO: spostare componente
 
-// todo: creare un mapping per i vari tasti?
-const { active } = useKey(`Key${p.hitKey.toUpperCase()}`);
+const p = defineProps<{ hitKey: string; color: RGB }>();
 
-watch(active, (v) => {
-  if (p.disabled) return;
-  emit("update:model-value", v);
-});
+const { HIT_KEY_HEIGHT, COL_WIDTH, gameState } = storeToRefs(useGameFieldStore());
+
+const { active } = useKey(p.hitKey);
+
+const disabled = computed(() => gameState.value === GAME_STATE.PAUSED);
 </script>
 
 <template>
@@ -21,17 +23,36 @@ watch(active, (v) => {
 <style scoped>
 .hit-key {
   cursor: pointer;
-  background-color: transparent;
-  border: 1px solid white;
+  background: linear-gradient(white, transparent 10%);
   display: flex;
   justify-content: center;
   align-items: center;
+  border: none;
+  padding: 0;
+  position: relative;
+  height: v-bind("`${HIT_KEY_HEIGHT}px`");
+  width: v-bind("`${COL_WIDTH}px`");
+
+  &:not([disabled])[active="true"]::before {
+    position: absolute;
+    width: 0;
+    height: 500%;
+    transform: translateY(-60%);
+    content: "";
+    background: linear-gradient(
+      transparent,
+      rgba(v-bind("color.r"), v-bind("color.g"), v-bind("color.b"), 0.45)
+    );
+    animation: expand 50ms forwards;
+  }
 }
-.hit-key:not([disabled])[active="true"]:before {
-  content: "";
-  background-color: white;
-  width: 60%;
-  height: 70%;
-  border-radius: 8px;
+
+@keyframes expand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 90%;
+  }
 }
 </style>

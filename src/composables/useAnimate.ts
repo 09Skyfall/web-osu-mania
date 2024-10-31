@@ -1,25 +1,32 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { assert } from "../utils/assertions";
+import { MaybeArray } from "../types/MaybeArray";
+import { toArray } from "../utils/toArray";
 
 export type AnimateFunction = (delta_t: number) => void;
 
 export type UseAnimateOptions = { animateOnMount?: boolean };
 
 export const useAnimate = (
-  cb: AnimateFunction,
+  cb: MaybeArray<AnimateFunction>,
   { animateOnMount = true }: UseAnimateOptions = {},
 ) => {
   const delta_t = ref(0);
   const last_timestamp = ref<number | null>(null);
   const paused = ref(false);
   const animation_id = ref<number | null>(null);
+  const animations = toArray(cb);
+
+  const add = (_animations: MaybeArray<AnimateFunction>) => {
+    animations.push(...toArray(_animations));
+  };
 
   const _animate = (timestamp: number) => {
     if (!last_timestamp.value) last_timestamp.value = timestamp;
     delta_t.value = timestamp - last_timestamp.value;
     last_timestamp.value = timestamp;
 
-    if (!paused.value) cb(delta_t.value);
+    if (!paused.value) animations.forEach((animation) => animation(delta_t.value));
 
     animation_id.value = requestAnimationFrame(_animate);
   };
@@ -46,5 +53,5 @@ export const useAnimate = (
 
   onUnmounted(stop);
 
-  return { play, pause, resume, stop };
+  return { play, pause, resume, stop, add };
 };

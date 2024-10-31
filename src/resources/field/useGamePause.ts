@@ -1,32 +1,22 @@
-import { ref, Ref } from "vue";
 import { useKey } from "../../composables/useKey";
-import { assert } from "../../utils/assertions";
-import Column from "../column/Column.vue";
 import { useEventListener } from "../../composables/useEventListener";
+import { GAME_STATE, useGameFieldStore } from "./store";
+import { storeToRefs } from "pinia";
 
-export const useGamePause = (
-  columns: Ref<InstanceType<typeof Column>[]>,
-  audio: Ref<HTMLAudioElement | null>,
-) => {
-  const paused = ref(false);
+export const useGamePause = () => {
+  const { gameState } = storeToRefs(useGameFieldStore());
 
   const pause = () => {
-    assert(audio.value, "Expected audio element to be mounted.");
-    paused.value = true;
-    audio.value.pause();
-    columns.value.forEach((c) => c.pause());
+    gameState.value = GAME_STATE.PAUSED;
   };
 
   const resume = () => {
-    assert(audio.value, "Expected audio element to be mounted.");
-    paused.value = false;
-    audio.value.play();
-    columns.value.forEach((c) => c.resume());
+    gameState.value = GAME_STATE.RUNNING;
   };
 
   useKey("Escape", {
     on_key_down: () => {
-      if (paused.value) resume();
+      if (gameState.value === GAME_STATE.PAUSED) resume();
       else pause();
     },
   });
@@ -34,6 +24,4 @@ export const useGamePause = (
   useEventListener(document, "visibilitychange", () => {
     if (document.hidden) pause();
   });
-
-  return { paused, pause, resume };
 };
