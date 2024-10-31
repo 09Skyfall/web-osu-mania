@@ -24,7 +24,6 @@ export const blobToAudioChunks = async (
 
   const numberOfchunks = length / (sampleRate * chunkDuration);
   const chunkLength = sampleRate * chunkDuration;
-  console.log(`numberOfChunks: ${numberOfchunks}, chunkLength: ${chunkLength}`);
 
   const channels: Float32Array[] = [];
   range(numberOfChannels).forEach((channelNumber) => {

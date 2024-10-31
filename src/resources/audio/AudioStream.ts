@@ -1,45 +1,37 @@
+import { assert } from "../../utils/assertions";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
 
+export type AudioStreamConstructorOptions = {
+  stream?: AudioReadableStream;
+  context?: AudioContext;
+};
 export class AudioStream {
-  private _readableStream: AudioReadableStream;
+  private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
   private _context: AudioContext;
   private _playingBuffers: AudioBufferSourceNode[] = [];
-  private _streaming = false;
   private _cancelled = false;
 
-  constructor(rs: AudioReadableStream, context: AudioContext) {
-    this._readableStream = rs;
+  constructor({ stream, context = new AudioContext() }: AudioStreamConstructorOptions = {}) {
+    this._reader = stream?.getReader();
     this._context = context;
   }
 
-  stream() {
-    this._streaming = true;
+  setReader(rs: AudioReadableStream) {
+    assert(this._reader === undefined, "Only one readableStream can be set.");
 
-    const reader = this._readableStream.getReader();
-
-    this._startStream(reader);
-
-    return async () => {
-      this._streaming = false;
-      this._cancelled = true;
-
-      this._playingBuffers.forEach((b) => {
-        b.disconnect();
-        b.stop();
-      });
-
-      await reader.cancel();
-    };
+    this._reader = rs.getReader();
   }
 
-  isStreaming() {
-    return this._streaming;
+  hasReader() {
+    return Boolean(this._reader);
   }
 
-  private async _startStream(reader: ReadableStreamDefaultReader<AudioChunk>) {
+  async stream() {
+    assert(this._reader, "No readableStream was set for this AudioStream.");
+
     let startTime = 0;
 
-    const { done, value: chunk } = await reader.read();
+    const { done, value: chunk } = await this._reader.read();
 
     if (done) return;
 
@@ -47,7 +39,7 @@ export class AudioStream {
     startTime += chunk.length / chunk.sampleRate;
 
     while (!this._cancelled) {
-      const { done, value: chunk } = await reader.read();
+      const { done, value: chunk } = await this._reader.read();
 
       if (done) return;
 
@@ -58,6 +50,31 @@ export class AudioStream {
       this._playingBuffers.shift();
       startTime += chunk.length / chunk.sampleRate;
     }
+  }
+
+  pause() {
+    assert(this._reader, "No readableStream was set for this AudioStream.");
+
+    return this._context.suspend();
+  }
+
+  resume() {
+    assert(this._reader, "No readableStream was set for this AudioStream.");
+
+    return this._context.resume();
+  }
+
+  stop() {
+    assert(this._reader, "No readableStream was set for this AudioStream.");
+
+    this._cancelled = true;
+
+    this._playingBuffers.forEach((b) => {
+      b.disconnect();
+      b.stop();
+    });
+
+    return this._reader.cancel();
   }
 
   private _playChunk = (chunk: AudioChunk, startTime: number) => {
