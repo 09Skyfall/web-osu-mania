@@ -74,7 +74,7 @@ export const useJudgement = (
     } else {
       if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
       const jw = (Object.keys(windows.value) as Judgement[]).find((jw) =>
-        inRange(note.y, windows.value[jw].top, windows.value[jw].bottom),
+        inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
       );
       assert(jw, "expected judgement window to not be undefined");
       judgementService.add(jw);

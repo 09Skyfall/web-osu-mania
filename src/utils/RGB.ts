@@ -7,9 +7,9 @@ export class RGB {
   b: number = 0;
 
   constructor(r: number, g: number, b: number) {
-    assert(inRange(r, 0, 255), "RGB values need to be between 0 and 255");
-    assert(inRange(g, 0, 255), "RGB values need to be between 0 and 255");
-    assert(inRange(b, 0, 255), "RGB values need to be between 0 and 255");
+    assert(inRange(r, 0, 255 + 1), "RGB values need to be between 0 and 255");
+    assert(inRange(g, 0, 255 + 1), "RGB values need to be between 0 and 255");
+    assert(inRange(b, 0, 255 + 1), "RGB values need to be between 0 and 255");
 
     this.r = r;
     this.g = g;
