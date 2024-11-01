@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useCanvas } from "../../composables/useCanvas";
-import { RGB } from "../../utils/classes/RGB";
+import { RGB } from "../colors/RGB";
 import { useGameFieldStore } from "../field/store";
 import { CanvasNote, Note, NOTE_TYPE } from "../note/store";
 import { useJudgement } from "../judgement/useJudgement";

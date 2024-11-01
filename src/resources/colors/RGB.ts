@@ -1,5 +1,5 @@
-import { inRange } from "lodash";
-import { assert } from "../assertions/assert";
+import { clamp, inRange } from "lodash";
+import { assert } from "../../utils/assertions/assert";
 
 export class RGB {
   r: number = 0;
@@ -25,6 +25,14 @@ export class RGB {
       interpolateValue(x.g, y.g, factor),
       interpolateValue(x.b, y.b, factor),
     );
+  }
+
+  multiply(amount: number) {
+    assert(amount > 0, "The amount by which RGB has to be multiplied must be greater than zero.");
+
+    const multipliedValueOf = (number: number) => clamp(Math.round(number * amount), 0, 255);
+
+    return new RGB(multipliedValueOf(this.r), multipliedValueOf(this.g), multipliedValueOf(this.b));
   }
 
   toString() {
