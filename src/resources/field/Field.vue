@@ -10,11 +10,13 @@ import { BeatmapLevel } from "../beatmap/store";
 import { getColumnColor } from "../column/store";
 import HitKey from "../../components/HitKey.vue";
 import Column from "../column/Column.vue";
+import { useAutoPlay } from "../mods/useAutoPlay";
 
 const p = defineProps<{ level: BeatmapLevel }>();
 
 const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
 const { keyBindings } = useGameFieldStore();
+const { hit: autoHit } = useAutoPlay();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
 const hitKeys = computed(() => (p.level ? (keyBindings.get(p.level.keyMode) ?? []) : []));
@@ -26,7 +28,7 @@ const start: AnimateFunction = (delta_t) => {
 
   const now = timer.elapsed;
 
-  columns.value.forEach((column) => {
+  columns.value.forEach((column, i) => {
     column.canvas.reset();
 
     if (!column.done && column.nextNote && column.nextNote.hit_t <= now + DURATION.value) {
@@ -46,7 +48,11 @@ const start: AnimateFunction = (delta_t) => {
       // duration / col_heght = delay / y ==> y = (col_height * delay) / duration
       const y_offset = (COL_HEIGHT.value * delay) / DURATION.value;
 
-      column.push(new CanvasNote({ y: y + y_offset, type }));
+      const canvasNote = new CanvasNote({ y: y + y_offset, type });
+
+      autoHit(canvasNote, hitKeys.value[i]);
+
+      column.push(canvasNote);
     }
 
     // @doc https://stackoverflow.com/questions/9882284/looping-through-array-and-removing-items-without-breaking-for-loop

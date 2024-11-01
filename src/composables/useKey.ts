@@ -14,6 +14,7 @@ export const useKey = (key: KeyboardEvent["key"], options: UseKeyOptions = {}) =
     if (options.on_key_down) options.on_key_down(e as KeyboardEvent);
     active.value = true;
   };
+
   const onKeyUp = (e: Event) => {
     if ((e as KeyboardEvent).key !== key) return;
     if (options.on_key_up) options.on_key_up(e as KeyboardEvent);
