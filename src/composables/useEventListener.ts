@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted } from "vue";
-import { normalizeTargetElement } from "../utils/normalizeTargetElement";
+import { normalizeTargetElement } from "../utils/functions/normalizeTargetElement";
 
 export const useEventListener = (
   target: EventTarget | string,

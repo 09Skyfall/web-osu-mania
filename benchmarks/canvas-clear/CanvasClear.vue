@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useAnimate } from "../../src/composables/useAnimate";
-import { assert } from "../../src/utils/assertions";
 import { mean, range } from "lodash";
+import { assert } from "../../src/utils/assertions/assert";
 
 const canvas = ref<HTMLCanvasElement[]>([]);
 const ctxs = computed(() => canvas.value.map((canvas) => canvas.getContext("2d")));

@@ -1,7 +1,7 @@
 import { storeToRefs } from "pinia";
-import { wait } from "../../utils/wait";
 import { CanvasNote } from "../note/store";
 import { useGameFieldStore } from "../field/store";
+import { wait } from "../../utils/functions/wait";
 
 export const useAutoPlay = () => {
   const { COL_HEIGHT, SCROLL_SPEED } = storeToRefs(useGameFieldStore());

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { assert } from "../utils/assertions";
-import { toArray } from "../utils/toArray";
 import { beatmapDb } from "../resources/beatmap/database";
 import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
 import { onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
@@ -8,6 +6,8 @@ import { AudioStream } from "../resources/audio/AudioStream";
 import { useRouter } from "vue-router";
 import { ROUTE } from "../plugins/router";
 import List from "../components/List.vue";
+import { assert } from "../utils/assertions/assert";
+import { toArray } from "../utils/functions/toArray";
 
 const router = useRouter();
 

@@ -1,5 +1,5 @@
 import { MaybeArray } from "../../types/MaybeArray";
-import { toArray } from "../../utils/toArray";
+import { toArray } from "../../utils/functions/toArray";
 import { Judgement } from "./store";
 
 /**

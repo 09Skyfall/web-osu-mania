@@ -1,4 +1,4 @@
-import { assert } from "../../utils/assertions";
+import { assert } from "../../utils/assertions/assert";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
 
 export type AudioStreamConstructorOptions = {

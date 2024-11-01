@@ -1,6 +1,6 @@
 import { MaybeArray } from "../../types/MaybeArray";
 import { MaybePromise } from "../../types/MaybePromise";
-import { toArray } from "../toArray";
+import { toArray } from "../functions/toArray";
 
 export class SCIDBObjectStore<T = unknown> {
   private _database: IDBDatabase;

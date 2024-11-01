@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { useKey } from "../composables/useKey";
-import { RGB } from "../utils/RGB";
+import { RGB } from "../utils/classes/RGB";
 import { GAME_STATE, useGameFieldStore } from "../resources/field/store";
 import { computed } from "vue";
 

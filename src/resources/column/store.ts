@@ -1,7 +1,7 @@
 import { inRange } from "lodash";
 import { MANIA_KEY_MODE } from "../field/store";
-import { assert } from "../../utils/assertions";
-import { RGB } from "../../utils/RGB";
+import { RGB } from "../../utils/classes/RGB";
+import { assert } from "../../utils/assertions/assert";
 
 export const getColumnColor = (number: number, keyMode: MANIA_KEY_MODE) => {
   const white = new RGB(255, 255, 255);

@@ -1,4 +1,4 @@
-import { assert } from "./assertions";
+import { assert } from "../assertions/assert";
 
 export class Timer {
   private _start_t = 0;

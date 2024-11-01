@@ -1,12 +1,12 @@
 import { computed, watch, type Ref } from "vue";
 import { inRange, mapValues, remove } from "lodash";
-import { assert } from "../../utils/assertions";
 import { type Judgement, JUDGEMENT_WINDOWS } from "./store";
 import { CanvasNote, NOTE_TYPE } from "../note/store";
 import { judgementService } from "./JudgementService";
 import { GAME_STATE, useGameFieldStore } from "../field/store";
 import { storeToRefs } from "pinia";
 import { useKey } from "../../composables/useKey";
+import { assert } from "../../utils/assertions/assert";
 
 export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   const { SCROLL_SPEED, COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());

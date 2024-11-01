@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, watchEffect } from "vue";
 import { size, sum } from "lodash";
-import { nonNull } from "../utils/assertions";
 import { useGamePause } from "../resources/field/useGamePause";
 import { useAsyncComputed } from "../composables/useAsyncComputed";
 import { beatmapDb } from "../resources/beatmap/database";
@@ -13,6 +12,7 @@ import Score from "../resources/score/Score.vue";
 import PauseOverlay from "../resources/field/PauseOverlay.vue";
 import HealthBar from "../resources/health/HealthBar.vue";
 import Field from "../resources/field/Field.vue";
+import { nonNull } from "../utils/assertions/nonNull";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 

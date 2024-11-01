@@ -1,15 +1,15 @@
 import { MaybeArray } from "../../types/MaybeArray";
-import { assert } from "../../utils/assertions";
 import { SuperchargedIndexedDB } from "../../utils/SuperchargedIndexedDB/SuperchargedIndexedDB";
-import { toArray } from "../../utils/toArray";
 import { Beatmap } from "./store";
-import { mapAsync } from "../../utils/mapAsync";
 import {
   AudioChunk,
   AudioReadableStream,
   blobToAudioChunks,
   offsetAudioChunk,
 } from "../audio/store";
+import { assert } from "../../utils/assertions/assert";
+import { mapAsync } from "../../utils/functions/mapAsync";
+import { toArray } from "../../utils/functions/toArray";
 
 const DATABASE_NAME = "Osu!Web-beatmaps-store";
 const DATABASE_VERSION = 1;

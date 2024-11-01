@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Bar from "../../components/Bar.vue";
-import { RGB } from "../../utils/RGB";
+import { RGB } from "../../utils/classes/RGB";
 import { judgementService } from "../judgement/JudgementService";
 import { clampRef } from "../../composables/clampRef";
 

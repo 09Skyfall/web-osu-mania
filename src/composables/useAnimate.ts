@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
-import { assert } from "../utils/assertions";
 import { MaybeArray } from "../types/MaybeArray";
-import { toArray } from "../utils/toArray";
+import { toArray } from "../utils/functions/toArray";
+import { assert } from "../utils/assertions/assert";
 
 export type AnimateFunction = (delta_t: number) => void;
 

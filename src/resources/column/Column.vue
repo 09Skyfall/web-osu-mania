@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useCanvas } from "../../composables/useCanvas";
-import { RGB } from "../../utils/RGB";
+import { RGB } from "../../utils/classes/RGB";
 import { useGameFieldStore } from "../field/store";
 import { CanvasNote, Note, NOTE_TYPE } from "../note/store";
 import { useJudgement } from "../judgement/useJudgement";
-import { assert, nonNull } from "../../utils/assertions";
 import { ref } from "vue";
+import { assert } from "../../utils/assertions/assert";
+import { nonNull } from "../../utils/assertions/nonNull";
 
 // TODO: rename column entity to fieldColumn ?
 

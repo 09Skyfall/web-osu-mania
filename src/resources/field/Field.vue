@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { Timer } from "../../utils/Timer";
+import { Timer } from "../../utils/classes/Timer";
 import { forEachRight } from "lodash";
 import { CanvasNote } from "../note/store";
 import { useGameFieldStore } from "./store";

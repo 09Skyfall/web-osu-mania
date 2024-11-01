@@ -1,5 +1,5 @@
 import { MaybeArray } from "../../types/MaybeArray";
-import { toArray } from "../toArray";
+import { toArray } from "../functions/toArray";
 import { SCIDBObjectStores } from "./SuperchargedIndexedDB";
 
 export class SCIDBVersion<T extends SCIDBObjectStores = Record<string, unknown>> {

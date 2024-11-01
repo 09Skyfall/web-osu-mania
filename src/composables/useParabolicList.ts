@@ -1,9 +1,9 @@
 import { useMutationObserver } from "./useMutationObserver";
-import { assert } from "../utils/assertions";
 import { onMounted, onUnmounted, ref } from "vue";
-import { normalizeTargetElement } from "../utils/normalizeTargetElement";
 import { useAnimate } from "./useAnimate";
-import { getScrollParent } from "../utils/getScrollParent";
+import { assert } from "../utils/assertions/assert";
+import { normalizeTargetElement } from "../utils/functions/normalizeTargetElement";
+import { getScrollParent } from "../utils/functions/getScrollParent";
 
 /**
  * @doc used RAF instead of scroll event loop to make computations: why?
