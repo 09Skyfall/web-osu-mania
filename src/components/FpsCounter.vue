@@ -12,24 +12,32 @@ useAnimate(
 </script>
 
 <template>
-  <div class="fps-container">
-    <span class="fps-counter">{{ fps }}</span>
-  </div>
+  <Teleport to="body">
+    <div class="fps-container">
+      <span class="fps-counter">{{ fps }}</span>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
 .fps-container {
-  padding: 0 1rem;
+  padding: 0 8px;
+  margin: 8px;
+  min-width: 5ch;
 
-  background-color: black;
+  background-color: #292524;
+  border-radius: 4px;
+
+  text-align: center;
 
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 1;
+  z-index: 9;
 }
+
 .fps-counter {
-  color: white;
-  font-size: 32px;
+  color: var(--warning);
+  font-size: 1.25rem;
 }
 </style>

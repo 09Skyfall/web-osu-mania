@@ -22,7 +22,7 @@ withDefaults(defineProps<{ active: boolean; opacity?: number; color?: RGB }>(), 
 .overlay {
   position: absolute;
   top: 0;
-  z-index: 99999;
+  z-index: 1;
 
   width: 100dvw;
   height: 100dvh;
