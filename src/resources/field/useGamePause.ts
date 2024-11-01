@@ -7,6 +7,7 @@ export const useGamePause = () => {
   const { gameState } = storeToRefs(useGameFieldStore());
 
   const pause = () => {
+    if (gameState.value !== GAME_STATE.RUNNING) return;
     gameState.value = GAME_STATE.PAUSED;
   };
 

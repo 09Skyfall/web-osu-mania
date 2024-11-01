@@ -13,10 +13,13 @@ import PauseOverlay from "../resources/field/PauseOverlay.vue";
 import HealthBar from "../resources/health/HealthBar.vue";
 import Field from "../resources/field/Field.vue";
 import { nonNull } from "../utils/assertions/nonNull";
+import GameOverOverlay from "../resources/field/GameOverOverlay.vue";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
 const { gameState } = storeToRefs(useGameFieldStore());
+
+gameState.value = GAME_STATE.RUNNING;
 
 useGamePause();
 
@@ -37,18 +40,31 @@ const field = ref<InstanceType<typeof Field> | null>(null);
 
 const totalNotes = computed(() => sum(level.value?.hitObjects.map(size)));
 
+const pause = () => {
+  nonNull(field.value).pause();
+  audioStream.value.pause();
+};
+
+const resume = () => {
+  nonNull(field.value).resume();
+  audioStream.value.resume();
+};
+
+const onUpdateHealth = (health: number) => {
+  if (health > 0) return;
+
+  gameState.value = GAME_STATE.GAME_OVER;
+  onGameOver();
+};
+
+const onGameOver = pause;
+
 watch(gameState, (state) => {
   switch (state) {
-    case GAME_STATE.PAUSED: {
-      nonNull(field.value).pause();
-      audioStream.value.pause();
-      break;
-    }
-    case GAME_STATE.RUNNING: {
-      nonNull(field.value).resume();
-      audioStream.value.resume();
-      break;
-    }
+    case GAME_STATE.PAUSED:
+      return pause();
+    case GAME_STATE.RUNNING:
+      return resume();
   }
 });
 
@@ -67,13 +83,15 @@ watchEffect(() => {
   <div class="wrapper" v-if="level">
     <Field ref="field" :level="level" />
 
-    <HealthBar />
+    <HealthBar @update:health="onUpdateHealth" />
 
     <Judgement class="judgement" />
 
     <Score :total-notes="totalNotes" />
 
     <PauseOverlay :active="gameState === GAME_STATE.PAUSED" />
+
+    <GameOverOverlay :active="gameState === GAME_STATE.GAME_OVER" />
   </div>
 </template>
 

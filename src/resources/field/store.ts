@@ -10,6 +10,7 @@ export enum MANIA_KEY_MODE {
 export enum GAME_STATE {
   PAUSED = "PAUSED",
   RUNNING = "RUNNING",
+  GAME_OVER = "GAME_OVER",
 }
 
 export const useGameFieldStore = defineStore("game-field", () => {

@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import Bar from "../../components/Bar.vue";
 import { RGB } from "../colors/RGB";
 import { judgementService } from "../judgement/JudgementService";
 import { clampRef } from "../../composables/clampRef";
 
-const health = clampRef(1, { min: 0, max: 1 });
+const emit = defineEmits<{ "update:health": [health: number] }>();
+
+const health = clampRef<number>(1, { min: 0, max: 1 });
 
 const lowHealthColor = new RGB(213, 0, 0);
 const highHealthColor = new RGB(56, 142, 60);
@@ -34,6 +36,8 @@ judgementService.onAdd((j) => {
       break;
   }
 });
+
+watch(health, (health) => emit("update:health", health));
 </script>
 
 <template>
