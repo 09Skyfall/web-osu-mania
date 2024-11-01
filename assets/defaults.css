@@ -5,6 +5,7 @@
 :root {
   --error: #ef4444;
   --success: #84cc16;
+  --warning: #facc15;
 }
 
 body {
