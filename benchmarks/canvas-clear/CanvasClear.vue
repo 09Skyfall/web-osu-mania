@@ -120,7 +120,6 @@ canvas {
   border: 1px solid red;
 }
 span {
-  color: white;
   font-size: 2rem;
 }
 </style>

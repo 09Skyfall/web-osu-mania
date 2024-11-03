@@ -16,6 +16,5 @@ judgementService.onAdd(updateScore);
 <style scoped>
 .score {
   font-size: 2rem;
-  color: white;
 }
 </style>

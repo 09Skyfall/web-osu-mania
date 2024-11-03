@@ -93,7 +93,6 @@ const darkenedColor = p.color.multiply(0.7);
     font-variant: all-small-caps;
     letter-spacing: 0.1rem;
     transition: transform 150ms;
-    color: white;
     padding-bottom: 0.5rem;
   }
 }

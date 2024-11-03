@@ -143,7 +143,6 @@ watch(beatmapSelected, async (selected, oldSelected) => {
 }
 
 .list-item-content {
-  color: white;
   border-radius: inherit;
   width: 100%;
   height: 100%;

@@ -12,6 +12,7 @@ body {
   margin: 0;
   background: radial-gradient(circle, rgba(102,0,97,1) 0%, rgba(0,0,0,1) 95%);
   font-family: "Quicksand", sans-serif;
+  color: white;
 }
 
 input, button {
@@ -20,8 +21,4 @@ input, button {
   &[disabled] {
     cursor: not-allowed;
   }
-}
-
-svg {
-  color: white;
 }
