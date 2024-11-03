@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from "../../components/Icon.vue";
 import { beatmapDb } from "./database";
 import { oszToJson } from "./store";
 
@@ -17,40 +18,48 @@ const onSelectFile = async (e: Event) => {
 
 <template>
   <div class="import-button">
-    <span class="plus">+</span>
+    <Icon icon="solar:import-outline" size="5rem" />
+    <span class="text">Import beatmaps</span>
     <input type="file" accept=".osz" multiple @change="onSelectFile" />
   </div>
 </template>
 
 <style scoped>
-.plus {
-  font-size: 16rem;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: transparent;
-  text-shadow: 0px 0 3px rgba(230, 0, 230, 1);
-  background-clip: text;
-}
-
 .import-button {
-  width: 300px;
-  height: 300px;
+  display: flex;
+  align-items: center;
+
+  width: 80px;
+  height: 80px;
+
   background-color: purple;
-  border-radius: 100%;
-  box-shadow: inset rgb(255, 0, 255) 0 0 48px 0;
+
   border: 1px solid white;
-  transition-property: width, height;
-  transition-duration: 150ms;
+  border-radius: 40px 0 0 40px;
+  border-right: none;
+
+  transition: width 150ms;
+
+  & .text {
+    flex: 1 1 0;
+    overflow: hidden;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: 0.05rem;
+    text-align: center;
+  }
 }
 
 .import-button:hover {
-  width: 350px;
-  height: 350px;
+  width: 190px;
+
   transform-style: preserve-3d;
 
   &::before {
     width: 100%;
     height: 100%;
-    border-radius: 100%;
+    border-radius: inherit;
 
     transform: translateZ(-1px);
 
@@ -75,7 +84,7 @@ const onSelectFile = async (e: Event) => {
 @keyframes ping {
   75%,
   100% {
-    box-shadow: transparent 0 0 0 40px;
+    box-shadow: transparent 0 0 0 20px;
   }
 }
 </style>
