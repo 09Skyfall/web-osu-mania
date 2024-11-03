@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount, watch } from "vue";
+import { ref, onBeforeUnmount, watch, computed } from "vue";
 import { AudioStream } from "../resources/audio/AudioStream";
 import FrequencyVisualizer from "../resources/audio/FrequencyVisualizer.vue";
 import { beatmapDb } from "../resources/beatmap/database";
@@ -12,6 +12,13 @@ const beatmapSelected = ref<Beatmap<string> | null>(null);
 const levelSelected = ref<BeatmapLevel | null>(null);
 
 const audioStream = ref(new AudioStream());
+
+const audioAnalyser = computed(() => {
+  const analyser = audioStream.value.context.createAnalyser();
+  analyser.fftSize = 512;
+  audioStream.value.subscribe((buffer) => buffer.connect(analyser));
+  return analyser;
+});
 
 const goToGameField = (beatmapId: string, levelId: string) => {
   return router.push({
@@ -48,6 +55,13 @@ watch(beatmapSelected, async (selected) => {
   />
 
   <ImportButton class="home-import-button" />
+
+  <FrequencyVisualizer
+    width="100%"
+    height="100px"
+    :analyser="audioAnalyser"
+    class="frequency-visualizer"
+  />
 </template>
 
 <style scoped>
@@ -55,5 +69,12 @@ watch(beatmapSelected, async (selected) => {
   position: absolute;
   right: 0;
   bottom: 5dvh;
+  z-index: 2;
+}
+
+.frequency-visualizer {
+  position: absolute;
+  bottom: 0;
+  z-index: 1;
 }
 </style>
