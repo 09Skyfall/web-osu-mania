@@ -21,3 +21,7 @@ input, button {
     cursor: not-allowed;
   }
 }
+
+svg {
+  color: white;
+}
