@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { beatmapDb } from "../resources/beatmap/database";
-import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
+import { beatmapDb } from "./database";
+import { Beatmap, BeatmapLevel } from "./store";
 import { onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
-import { AudioStream } from "../resources/audio/AudioStream";
+import { AudioStream } from "../audio/AudioStream";
 import { useRouter } from "vue-router";
-import { ROUTE } from "../plugins/router";
-import List from "../components/List.vue";
-import { assert } from "../utils/assertions/assert";
-import { toArray } from "../utils/functions/toArray";
+import { ROUTE } from "../../plugins/router";
+import { assert } from "../../utils/assertions/assert";
+import { toArray } from "../../utils/functions/toArray";
+import List from "../../components/List.vue";
 
 const router = useRouter();
 

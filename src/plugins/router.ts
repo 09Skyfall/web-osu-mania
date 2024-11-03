@@ -2,16 +2,16 @@ import { h } from "vue";
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 export enum ROUTE {
-  BEATMAP_LIST = "BEATMAP_LIST",
+  HOME = "HOME",
   GAME_FIELD = "GAME_FIELD",
 }
 
 const routes: RouteRecordRaw[] = [
-  { path: "/", redirect: { name: ROUTE.BEATMAP_LIST } },
+  { path: "/", redirect: { name: ROUTE.HOME } },
   {
-    path: "/beatmaps",
-    name: ROUTE.BEATMAP_LIST,
-    component: () => import("../views/List.vue"),
+    path: "/home",
+    name: ROUTE.HOME,
+    component: () => import("../views/Home.vue"),
   },
   {
     path: "/play/:beatmapId/:levelId",

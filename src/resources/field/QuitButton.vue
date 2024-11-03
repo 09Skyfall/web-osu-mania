@@ -6,7 +6,7 @@ import { error } from "../colors";
 
 const router = useRouter();
 
-const onQuit = () => router.push({ name: ROUTE.BEATMAP_LIST });
+const onQuit = () => router.push({ name: ROUTE.HOME });
 </script>
 
 <template>
