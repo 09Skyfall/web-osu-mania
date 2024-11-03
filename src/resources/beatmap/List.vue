@@ -1,46 +1,44 @@
 <script setup lang="ts">
 import { beatmapDb } from "./database";
 import { Beatmap, BeatmapLevel } from "./store";
-import { onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
-import { AudioStream } from "../audio/AudioStream";
-import { useRouter } from "vue-router";
-import { ROUTE } from "../../plugins/router";
+import { onBeforeMount, ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { toArray } from "../../utils/functions/toArray";
 import List from "../../components/List.vue";
 
-const router = useRouter();
+const emit = defineEmits<{
+  "update:selected-beatmap": [beatmap: Beatmap<string>];
+  "update:selected-level": [level: BeatmapLevel];
+  "select:level": [beatmapId: string, levelId: string];
+}>();
+
+const p = defineProps<{
+  selectedBeatmap: Beatmap<string> | null;
+  selectedLevel: BeatmapLevel | null;
+}>();
 
 const beatmaps = ref<Beatmap<string>[]>([]);
-const audioStream = ref(new AudioStream());
 
-const beatmapSelected = ref<Beatmap<string> | null>(null);
-const levelSelected = ref<BeatmapLevel | null>(null);
-
-const isBeatmapSelected = (id: string) => beatmapSelected.value?.id === id;
-const isLevelSelected = (id: string) => levelSelected.value?.id === id;
+const isBeatmapSelected = (id: string) => p.selectedBeatmap?.id === id;
+const isLevelSelected = (id: string) => p.selectedLevel?.id === id;
 
 const onSelectBeatmap = (e: Event, beatmap: Beatmap<string>) => {
-  if (beatmap.id === beatmapSelected.value?.id) return goToGameField();
+  if (p.selectedLevel && beatmap.id === p.selectedBeatmap?.id) {
+    return emit("select:level", beatmap.id, p.selectedLevel.id);
+  }
 
-  beatmapSelected.value = beatmap;
+  emit("update:selected-beatmap", beatmap);
+
   assert(e.target instanceof HTMLElement);
   e.target.scrollIntoView({ behavior: "smooth", block: "center" });
 };
 
 const onSelectLevel = (level: BeatmapLevel) => {
-  if (level.id === levelSelected.value?.id) return goToGameField();
+  if (p.selectedBeatmap && level.id === p.selectedLevel?.id) {
+    return emit("select:level", p.selectedBeatmap.id, level.id);
+  }
 
-  levelSelected.value = level;
-};
-
-const goToGameField = () => {
-  assert(beatmapSelected.value && levelSelected.value);
-
-  return router.push({
-    name: ROUTE.GAME_FIELD,
-    params: { beatmapId: beatmapSelected.value.id, levelId: levelSelected.value.id },
-  });
+  emit("update:selected-level", level);
 };
 
 onBeforeMount(async () => {
@@ -52,25 +50,6 @@ onBeforeMount(async () => {
     imageSource: b.imageSource ? URL.createObjectURL(b.imageSource) : undefined,
   }));
 });
-
-onBeforeUnmount(() => {
-  if (audioStream.value.hasReader()) audioStream.value.stop();
-});
-
-watch(beatmapSelected, async (selected, oldSelected) => {
-  if (!selected?.id || selected.id === oldSelected?.id) return;
-
-  levelSelected.value = selected.levels[0];
-
-  const rs = await beatmapDb.getAudioStream(
-    selected.id,
-    levelSelected.value.audioPreviewTime /* ms */ / 1000,
-  );
-
-  if (audioStream.value.hasReader()) await audioStream.value.stop();
-  audioStream.value = new AudioStream({ stream: rs });
-  audioStream.value.stream();
-});
 </script>
 
 <template>
@@ -79,7 +58,7 @@ watch(beatmapSelected, async (selected, oldSelected) => {
     bouncy
     parabolic
     class="beatmaps-list"
-    :style="`--background-image-src: url('${beatmapSelected?.imageSource}')`"
+    :style="`--background-image-src: url('${selectedBeatmap?.imageSource}')`"
   >
     <template #item="{ item: beatmap }">
       <li
