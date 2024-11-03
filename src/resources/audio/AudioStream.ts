@@ -1,19 +1,26 @@
+import { MaybeArray } from "../../types/MaybeArray";
 import { assert } from "../../utils/assertions/assert";
+import { toArray } from "../../utils/functions/toArray";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
 
 export type AudioStreamConstructorOptions = {
   stream?: AudioReadableStream;
   context?: AudioContext;
 };
+
+export type SubscriberCallback = (buffer: AudioBufferSourceNode) => unknown;
+
 export class AudioStream {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
-  private _context: AudioContext;
   private _playingBuffers: AudioBufferSourceNode[] = [];
   private _cancelled = false;
+  private _subscribers: SubscriberCallback[] = [];
+
+  public context: AudioContext;
 
   constructor({ stream, context = new AudioContext() }: AudioStreamConstructorOptions = {}) {
     this._reader = stream?.getReader();
-    this._context = context;
+    this.context = context;
   }
 
   setReader(rs: AudioReadableStream) {
@@ -55,13 +62,13 @@ export class AudioStream {
   pause() {
     assert(this._reader, "No readableStream was set for this AudioStream.");
 
-    return this._context.suspend();
+    return this.context.suspend();
   }
 
   resume() {
     assert(this._reader, "No readableStream was set for this AudioStream.");
 
-    return this._context.resume();
+    return this.context.resume();
   }
 
   stop() {
@@ -77,11 +84,18 @@ export class AudioStream {
     return this._reader.cancel();
   }
 
+  subscribe(cb: MaybeArray<SubscriberCallback>) {
+    this._subscribers.push(...toArray(cb));
+  }
+
   private _playChunk = (chunk: AudioChunk, startTime: number) => {
-    const bufferSource = this._context.createBufferSource();
+    const bufferSource = this.context.createBufferSource();
 
     bufferSource.buffer = audioChunkToAudioBuffer(chunk);
-    bufferSource.connect(this._context.destination);
+
+    this._subscribers.forEach((cb) => cb(bufferSource));
+
+    bufferSource.connect(this.context.destination);
     bufferSource.start(startTime);
 
     return bufferSource;
