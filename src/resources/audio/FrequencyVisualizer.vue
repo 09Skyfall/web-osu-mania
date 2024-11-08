@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import ResponsiveCanvas from "../../components/ResponsiveCanvas.vue";
 import { useAnimate } from "../../composables/useAnimate";
 import { assert } from "../../utils/assertions/assert";
@@ -21,14 +21,21 @@ const p = withDefaults(
   },
 );
 
-const responsiveCanvas = ref<InstanceType<typeof ResponsiveCanvas> | null>(null);
-const responsiveCanvasOffsetted = ref<InstanceType<typeof ResponsiveCanvas> | null>(null);
+const foreground = ref<InstanceType<typeof ResponsiveCanvas> | null>(null);
+const background = ref<InstanceType<typeof ResponsiveCanvas> | null>(null);
 
 const MAX_FREQUENCY_VALUE = 255;
 
-const samples = new Uint8Array(p.analyser.frequencyBinCount);
+const foregroundSamples = shallowRef(new Uint8Array(p.analyser.frequencyBinCount));
 
-const draw = (samples: Uint8Array, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+const draw = (
+  samples: Uint8Array,
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  fillStlye?: string | CanvasGradient | CanvasPattern,
+) => {
+  ctx.fillStyle = fillStlye ?? ctx.fillStyle;
+
   if (p.vertical) {
     const sampleWidth = (canvas.height * 1.0) / p.analyser.frequencyBinCount;
 
@@ -54,36 +61,43 @@ const draw = (samples: Uint8Array, canvas: HTMLCanvasElement, ctx: CanvasRenderi
   }
 };
 
-useAnimate(() => {
-  assert(responsiveCanvas.value?.canvas && responsiveCanvas.value.ctx);
-  const { canvas, ctx } = responsiveCanvas.value;
+const drawForeground = computed(() => {
+  if (!foreground.value?.canvas || !foreground.value?.ctx) return () => undefined;
 
-  p.analyser.getByteFrequencyData(samples);
+  const { canvas, ctx } = foreground.value;
+  return () => draw(foregroundSamples.value, canvas, ctx, p.color.toString());
+});
+
+useAnimate(() => {
+  assert(foreground.value?.canvas && foreground.value.ctx);
+  const { canvas, ctx } = foreground.value;
+
+  p.analyser.getByteFrequencyData(foregroundSamples.value);
 
   ctx.reset();
 
   ctx.fillStyle = p.color.toString();
 
-  draw(samples, canvas, ctx);
+  draw(foregroundSamples.value, canvas, ctx);
 
-  const clonedSamples = new Uint8Array(samples);
+  const backgroundSamples = new Uint8Array(foregroundSamples.value);
 
   setTimeout(() => {
-    assert(responsiveCanvasOffsetted.value?.canvas && responsiveCanvasOffsetted.value.ctx);
-    const { canvas, ctx } = responsiveCanvasOffsetted.value;
+    assert(background.value?.canvas && background.value.ctx);
+    const { canvas, ctx } = background.value;
 
     ctx.reset();
     ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.33)`;
 
-    draw(clonedSamples, canvas, ctx);
+    draw(backgroundSamples, canvas, ctx);
   }, 500);
 });
 </script>
 
 <template>
   <div class="frequency-visualiser-container">
-    <ResponsiveCanvas ref="responsiveCanvas" :width :height />
-    <ResponsiveCanvas ref="responsiveCanvasOffsetted" :width :height />
+    <ResponsiveCanvas ref="foreground" :width :height :redraw="drawForeground" style="z-index: 1" />
+    <ResponsiveCanvas ref="background" :width :height />
   </div>
 </template>
 

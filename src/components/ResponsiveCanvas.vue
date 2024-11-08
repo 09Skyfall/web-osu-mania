@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useCanvas } from "../composables/useCanvas";
+import { assert } from "../utils/assertions/assert";
 
-withDefaults(defineProps<{ height?: string; width?: string }>(), {
+const p = withDefaults(defineProps<{ height?: string; width?: string; redraw?: () => void }>(), {
   width: "100%",
   height: "100%",
 });
 
 const { canvas, ctx } = useCanvas();
 
-const computed_width = ref(0);
-const computed_height = ref(0);
-
 // eslint-disable-next-line no-undef
 const onResize: ResizeObserverCallback = ([entry]) => {
-  computed_width.value = entry.contentRect.width;
-  computed_height.value = entry.contentRect.height;
+  assert(canvas.value);
+  canvas.value.width = Math.floor(entry.contentRect.width);
+  canvas.value.height = Math.floor(entry.contentRect.height);
+  if (p.redraw) p.redraw();
 };
 
 defineExpose({ canvas, ctx });
@@ -23,7 +22,7 @@ defineExpose({ canvas, ctx });
 
 <template>
   <div v-resize="onResize" class="responsive-canvas">
-    <canvas ref="canvas" :width="computed_width" :height="computed_height" />
+    <canvas ref="canvas" :width="0" :height="0" />
   </div>
 </template>
 
