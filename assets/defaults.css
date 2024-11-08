@@ -6,6 +6,8 @@
   --error: #ef4444;
   --success: #84cc16;
   --warning: #facc15;
+  --primary: #be185d;
+  --secondary: #ff87b7;
 }
 
 body {

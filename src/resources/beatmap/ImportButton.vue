@@ -32,7 +32,7 @@ const onSelectFile = async (e: Event) => {
   width: 80px;
   height: 80px;
 
-  background-color: purple;
+  background-color: var(--primary);
 
   border: 1px solid white;
   border-radius: 40px 0 0 40px;
@@ -66,7 +66,7 @@ const onSelectFile = async (e: Event) => {
     position: absolute;
 
     content: "";
-    box-shadow: purple 0 0 0 0;
+    box-shadow: var(--primary) 0 0 0 0;
 
     animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   }

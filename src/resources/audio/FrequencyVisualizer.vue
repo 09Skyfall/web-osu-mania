@@ -3,12 +3,21 @@ import { ref } from "vue";
 import ResponsiveCanvas from "../../components/ResponsiveCanvas.vue";
 import { useAnimate } from "../../composables/useAnimate";
 import { assert } from "../../utils/assertions/assert";
+import { RGB } from "../colors/RGB";
+import { secondary } from "../colors";
 
 const p = withDefaults(
-  defineProps<{ width?: string; height?: string; analyser: AnalyserNode; vertical?: boolean }>(),
+  defineProps<{
+    width?: string;
+    height?: string;
+    analyser: AnalyserNode;
+    vertical?: boolean;
+    color?: RGB;
+  }>(),
   {
     width: "100%",
     height: "100%",
+    color: () => secondary,
   },
 );
 
@@ -52,7 +61,8 @@ useAnimate(() => {
   p.analyser.getByteFrequencyData(samples);
 
   ctx.reset();
-  ctx.fillStyle = "white";
+
+  ctx.fillStyle = p.color.toString();
 
   draw(samples, canvas, ctx);
 
@@ -63,7 +73,7 @@ useAnimate(() => {
     const { canvas, ctx } = responsiveCanvasOffsetted.value;
 
     ctx.reset();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.33)";
+    ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.33)`;
 
     draw(clonedSamples, canvas, ctx);
   }, 500);

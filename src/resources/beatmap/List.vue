@@ -186,7 +186,7 @@ onBeforeMount(async () => {
 }
 
 .beatmap-level-list-item {
-  background: linear-gradient(45deg, #eabec3bf 35%, #dd868c);
+  background: linear-gradient(45deg, var(--secondary) 35%, var(--primary));
   height: 50px;
   margin: 4px 0;
 }
