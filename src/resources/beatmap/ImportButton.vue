@@ -17,7 +17,7 @@ const onSelectFile = async (e: Event) => {
 </script>
 
 <template>
-  <div class="import-button">
+  <div class="import-button ping">
     <Icon icon="solar:import-outline" size="5rem" />
     <span class="text">Import beatmaps</span>
     <input type="file" accept=".osz" multiple @change="onSelectFile" />
@@ -25,6 +25,8 @@ const onSelectFile = async (e: Event) => {
 </template>
 
 <style scoped>
+@import url("../../../assets/ping.css");
+
 .import-button {
   display: flex;
   align-items: center;
@@ -53,23 +55,6 @@ const onSelectFile = async (e: Event) => {
 
 .import-button:hover {
   width: 190px;
-
-  transform-style: preserve-3d;
-
-  &::before {
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-
-    transform: translateZ(-1px);
-
-    position: absolute;
-
-    content: "";
-    box-shadow: var(--primary) 0 0 0 0;
-
-    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
 }
 
 .import-button > input {
@@ -81,10 +66,4 @@ const onSelectFile = async (e: Event) => {
   top: 0;
 }
 
-@keyframes ping {
-  75%,
-  100% {
-    box-shadow: transparent 0 0 0 20px;
-  }
-}
 </style>
