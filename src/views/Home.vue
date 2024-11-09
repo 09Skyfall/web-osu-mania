@@ -7,6 +7,7 @@ import ImportButton from "../resources/beatmap/ImportButton.vue";
 import List from "../resources/beatmap/List.vue";
 import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
 import { router, ROUTE } from "../plugins/router";
+import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 
 const beatmapSelected = ref<Beatmap<string> | null>(null);
 const levelSelected = ref<BeatmapLevel | null>(null);
@@ -48,6 +49,7 @@ watch(beatmapSelected, async (selected) => {
 </script>
 
 <template>
+  <BackgroundImage :src="beatmapSelected?.imageSource">
   <List
     v-model:selected-beatmap="beatmapSelected"
     v-model:selected-level="levelSelected"
@@ -62,6 +64,7 @@ watch(beatmapSelected, async (selected) => {
     :analyser="audioAnalyser"
     class="frequency-visualizer"
   />
+  </BackgroundImage>
 </template>
 
 <style scoped>

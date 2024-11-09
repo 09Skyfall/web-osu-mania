@@ -53,13 +53,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <List
-    :items="beatmaps"
-    bouncy
-    parabolic
-    class="beatmaps-list"
-    :style="`--background-image-src: url('${selectedBeatmap?.imageSource}')`"
-  >
+  <List :items="beatmaps" bouncy parabolic class="beatmaps-list">
     <template #item="{ item: beatmap }">
       <li
         class="list-item beatmap-list-item"
@@ -98,19 +92,6 @@ onBeforeMount(async () => {
 .beatmaps-list {
   height: 100dvh;
   position: relative;
-}
-
-.beatmaps-list::before {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  content: "";
-  filter: blur(6px);
-  background-size: cover;
-  background-image: var(--background-image-src);
-  background-size: 100% 100%;
-  transition: background-image 250ms;
-  z-index: -1;
 }
 
 .list-item {
