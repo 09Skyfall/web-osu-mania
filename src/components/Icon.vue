@@ -3,7 +3,10 @@
 
 import { useAsyncComputed } from "../composables/useAsyncComputed";
 
-const p = defineProps<{ icon: string; size: string }>();
+const p = withDefaults(defineProps<{ icon: string; size?: string; color?: string }>(), {
+  size: "24px",
+  color: "white",
+});
 
 const { value: IconComponent } = useAsyncComputed(
   null,
@@ -12,11 +15,12 @@ const { value: IconComponent } = useAsyncComputed(
 </script>
 
 <template>
-  <IconComponent class="icon" />
+  <IconComponent class="base-icon" />
 </template>
 
 <style scoped>
-.icon {
-  font-size: v-bind('p.size')
+.base-icon {
+  font-size: v-bind("p.size");
+  color: v-bind("p.color");
 }
 </style>

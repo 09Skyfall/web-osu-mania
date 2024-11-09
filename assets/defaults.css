@@ -7,6 +7,7 @@
   --success: #84cc16;
   --warning: #facc15;
   --primary: #be185d;
+  --primary-darker: #af0051;
   --secondary: #ff87b7;
 }
 
@@ -23,4 +24,9 @@ input, button {
   &[disabled] {
     cursor: not-allowed;
   }
+}
+
+button[icon] {
+  background-color: transparent;
+  border: none;
 }

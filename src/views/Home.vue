@@ -2,10 +2,10 @@
 import { ref, onBeforeUnmount, watch, provide } from "vue";
 import { AudioStream } from "../resources/audio/AudioStream";
 import { beatmapDb } from "../resources/beatmap/database";
-import ImportButton from "../resources/beatmap/ImportButton.vue";
 import List from "../resources/beatmap/List.vue";
 import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
 import { router, ROUTE } from "../plugins/router";
+import Sidebar from "../components/Sidebar.vue";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 
 const beatmapSelected = ref<Beatmap<string> | null>(null);
@@ -50,15 +50,6 @@ watch(beatmapSelected, async (selected) => {
     @select:level="goToGameField"
   />
 
-  <ImportButton class="home-import-button" />
+    <Sidebar />
   </BackgroundImage>
 </template>
-
-<style scoped>
-.home-import-button {
-  position: absolute;
-  right: 0;
-  bottom: 5dvh;
-  z-index: 2;
-}
-</style>

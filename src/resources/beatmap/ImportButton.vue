@@ -18,7 +18,7 @@ const onSelectFile = async (e: Event) => {
 
 <template>
   <div class="import-button ping">
-    <Icon icon="solar:import-outline" size="5rem" />
+    <Icon icon="solar:import-outline" size="5rem" class="import-icon" />
     <span class="text">Import beatmaps</span>
     <input type="file" accept=".osz" multiple @change="onSelectFile" />
   </div>
@@ -31,18 +31,20 @@ const onSelectFile = async (e: Event) => {
   display: flex;
   align-items: center;
 
-  width: 80px;
+  width: 100px;
   height: 80px;
 
-  background-color: var(--primary);
+  background-color: var(--primary-darker);
+  color: var(--primary-darker);
 
   border: 1px solid white;
   border-radius: 40px 0 0 40px;
   border-right: none;
 
-  transition: width 150ms;
+  transition: width 150ms ease-in-out;
 
   & .text {
+    color: white;
     flex: 1 1 0;
     overflow: hidden;
     text-transform: uppercase;
@@ -54,7 +56,7 @@ const onSelectFile = async (e: Event) => {
 }
 
 .import-button:hover {
-  width: 190px;
+  width: 210px;
 }
 
 .import-button > input {
@@ -66,4 +68,7 @@ const onSelectFile = async (e: Event) => {
   top: 0;
 }
 
+.import-icon {
+  margin-right: 20px;
+}
 </style>
