@@ -5,6 +5,7 @@ import { useAnimate } from "../../composables/useAnimate";
 import { assert } from "../../utils/assertions/assert";
 import { RGB } from "../colors/RGB";
 import { secondary } from "../colors";
+import { delayedRef } from "../../composables/delayedRef";
 
 const p = withDefaults(
   defineProps<{
@@ -27,6 +28,7 @@ const background = ref<InstanceType<typeof ResponsiveCanvas> | null>(null);
 const MAX_FREQUENCY_VALUE = 255;
 
 const foregroundSamples = shallowRef(new Uint8Array(p.analyser.frequencyBinCount));
+const backgroundSamples = shallowRef(delayedRef(new Uint8Array(p.analyser.frequencyBinCount), 500));
 
 const draw = (
   samples: Uint8Array,
@@ -80,17 +82,15 @@ useAnimate(() => {
 
   draw(foregroundSamples.value, canvas, ctx);
 
-  const backgroundSamples = new Uint8Array(foregroundSamples.value);
+  backgroundSamples.value = new Uint8Array(foregroundSamples.value);
 
-  setTimeout(() => {
-    assert(background.value?.canvas && background.value.ctx);
-    const { canvas, ctx } = background.value;
+  assert(background.value?.canvas && background.value.ctx);
+  const { canvas: background_canvas, ctx: background_ctx } = background.value;
 
-    ctx.reset();
-    ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.33)`;
+  background_ctx.reset();
+  background_ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.33)`;
 
-    draw(backgroundSamples, canvas, ctx);
-  }, 500);
+  draw(backgroundSamples.value, background_canvas, background_ctx);
 });
 </script>
 
