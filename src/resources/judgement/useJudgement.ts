@@ -7,9 +7,11 @@ import { GAME_STATE, useGameFieldStore } from "../field/store";
 import { storeToRefs } from "pinia";
 import { useKey } from "../../composables/useKey";
 import { assert } from "../../utils/assertions/assert";
+import { useSettingsStore } from "../settings/store";
 
 export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
-  const { SCROLL_SPEED, COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());
+  const { COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());
+  const { SCROLL_SPEED } = storeToRefs(useSettingsStore());
 
   const { active } = useKey(key); // TODO: aggiungere stato di pausa
 

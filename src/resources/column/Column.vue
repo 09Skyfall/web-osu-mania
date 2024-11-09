@@ -8,6 +8,7 @@ import { useJudgement } from "../judgement/useJudgement";
 import { ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { nonNull } from "../../utils/assertions/nonNull";
+import { useSettingsStore } from "../settings/store";
 
 // TODO: rename column entity to fieldColumn ?
 
@@ -15,7 +16,8 @@ const p = withDefaults(defineProps<{ notes: Note[]; hitKey: string; color?: RGB 
   color: () => new RGB(255, 255, 255),
 });
 
-const { SCROLL_SPEED, COL_HEIGHT, COL_WIDTH } = storeToRefs(useGameFieldStore());
+const { COL_HEIGHT, COL_WIDTH } = storeToRefs(useGameFieldStore());
+const { SCROLL_SPEED } = storeToRefs(useSettingsStore());
 
 const { canvas, ctx: canvasContext } = useCanvas({ alpha: false });
 

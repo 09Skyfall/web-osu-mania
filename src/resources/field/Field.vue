@@ -11,11 +11,12 @@ import { getColumnColor } from "../column/store";
 import HitKey from "../../components/HitKey.vue";
 import Column from "../column/Column.vue";
 import { useAutoPlay } from "../mods/useAutoPlay";
+import { useSettingsStore } from "../settings/store";
 
 const p = defineProps<{ level: BeatmapLevel }>();
 
 const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
-const { keyBindings } = useGameFieldStore();
+const { keyBindings } = useSettingsStore();
 const { hit: autoHit } = useAutoPlay();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);

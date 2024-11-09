@@ -1,10 +1,10 @@
 import { BlobReader, BlobWriter, Entry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { Note, NOTE_TYPE } from "../note/store";
 import { curry, identity, range } from "lodash";
-import { MANIA_KEY_MODE } from "../field/store";
 import { assert } from "../../utils/assertions/assert";
 import { mapAsync } from "../../utils/functions/mapAsync";
 import { nonNull } from "../../utils/assertions/nonNull";
+import { MANIA_KEY_MODE } from "../settings/store";
 
 export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
