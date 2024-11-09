@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { beatmapDb } from "./database";
 import { Beatmap, BeatmapLevel } from "./store";
-import { onBeforeMount, ref } from "vue";
+import { computed, inject, onBeforeMount, ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { toArray } from "../../utils/functions/toArray";
 import List from "../../components/List.vue";
+import FrequencyVisualizer from "../audio/FrequencyVisualizer.vue";
+import { AudioStream } from "../audio/AudioStream";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -16,6 +18,15 @@ const p = defineProps<{
   selectedBeatmap: Beatmap<string> | null;
   selectedLevel: BeatmapLevel | null;
 }>();
+
+const audioStream = inject("audioStream", ref(new AudioStream()));
+
+const audioAnalyser = computed(() => {
+  const analyser = audioStream.value.context.createAnalyser();
+  analyser.fftSize = 512;
+  audioStream.value.subscribe((graph) => graph.output.inbounds[0].node.connect(analyser));
+  return analyser;
+});
 
 const beatmaps = ref<Beatmap<string>[]>([]);
 
@@ -68,6 +79,14 @@ onBeforeMount(async () => {
           </span>
           <span class="subtitle">{{ beatmap.levels[0].artist }}</span>
         </div>
+
+        <FrequencyVisualizer
+          v-if="isBeatmapSelected(beatmap.id)"
+          width="100%"
+          height="50px"
+          :analyser="audioAnalyser"
+          class="frequency-visualizer"
+        />
       </li>
       <!-- todo: unfold animation -->
       <template v-if="isBeatmapSelected(beatmap.id)">
@@ -89,6 +108,11 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
+.frequency-visualizer {
+  position: absolute;
+  bottom: 0;
+}
+
 .beatmaps-list {
   height: 100dvh;
   position: relative;
