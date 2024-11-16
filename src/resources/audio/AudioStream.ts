@@ -1,20 +1,20 @@
-import { MaybeArray } from "../../types/MaybeArray";
 import { assert } from "../../utils/assertions/assert";
-import { toArray } from "../../utils/functions/toArray";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
+import { AudioGraph } from "./AudioGraph";
+import { remove, uniqueId } from "lodash";
 
 export type AudioStreamConstructorOptions = {
   stream?: AudioReadableStream;
   context?: AudioContext;
 };
 
-export type SubscriberCallback = (buffer: AudioBufferSourceNode) => unknown;
+export type SubscriberCallback = (audioPath: AudioGraph) => unknown;
 
 export class AudioStream {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
-  private _playingBuffers: AudioBufferSourceNode[] = [];
+  private _playingGraphs: AudioGraph[] = [];
   private _cancelled = false;
-  private _subscribers: SubscriberCallback[] = [];
+  private _subscribers: { id: string; cb: SubscriberCallback }[] = [];
 
   public context: AudioContext;
 
@@ -42,7 +42,7 @@ export class AudioStream {
 
     if (done) return;
 
-    this._playingBuffers.push(this._playChunk(chunk, startTime));
+    this._playChunk(chunk, startTime);
     startTime += chunk.length / chunk.sampleRate;
 
     while (!this._cancelled) {
@@ -51,10 +51,9 @@ export class AudioStream {
       if (done) return;
 
       const bufferSource = this._playChunk(chunk, startTime);
-      this._playingBuffers.push(bufferSource);
 
       await new Promise((res) => bufferSource.addEventListener("ended", res, { once: true }));
-      this._playingBuffers.shift();
+
       startTime += chunk.length / chunk.sampleRate;
     }
   }
@@ -76,16 +75,32 @@ export class AudioStream {
 
     this._cancelled = true;
 
-    this._playingBuffers.forEach((b) => {
-      b.disconnect();
-      b.stop();
-    });
+    this._playingGraphs.forEach((p) => p.input.node.stop());
 
     return this._reader.cancel();
   }
 
-  subscribe(cb: MaybeArray<SubscriberCallback>) {
-    this._subscribers.push(...toArray(cb));
+  subscribe(cb: SubscriberCallback) {
+    const id = uniqueId("audio-stream-subscriber");
+
+    this._subscribers.push({ cb, id });
+
+    this._playingGraphs.forEach((graph) => cb(graph));
+
+    return id;
+  }
+
+  unsubscribe(id: string) {
+    const [removed] = remove(this._subscribers, (subscriber) => subscriber.id === id);
+    assert(Boolean(removed));
+  }
+
+  get currentGraphs() {
+    return this._playingGraphs;
+  }
+
+  private createAudioGraph(input: AudioBufferSourceNode) {
+    return new AudioGraph({ input, output: this.context.destination });
   }
 
   private _playChunk = (chunk: AudioChunk, startTime: number) => {
@@ -93,10 +108,13 @@ export class AudioStream {
 
     bufferSource.buffer = audioChunkToAudioBuffer(chunk);
 
-    this._subscribers.forEach((cb) => cb(bufferSource));
-
-    bufferSource.connect(this.context.destination);
     bufferSource.start(startTime);
+
+    if (this._playingGraphs.length >= 2) this._playingGraphs.shift();
+    const audioGraph = this.createAudioGraph(bufferSource);
+    this._playingGraphs.push(audioGraph);
+
+    this._subscribers.forEach(({ cb }) => cb(audioGraph));
 
     return bufferSource;
   };
