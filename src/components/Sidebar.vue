@@ -9,21 +9,21 @@ const openSettings = () => {
 
 <template>
   <aside>
-    <a href="https://github.com/09Skyfall/web-osu-mania" target="_blank">
-      <Icon class="button-icon" icon="arcticons:github" size="48px" />
-    </a>
-
-    <a href="https://osu.ppy.sh/beatmapsets?m=3" target="_blank">
-      <Icon class="button-icon" icon="arcticons:osu" size="48px" />
-    </a>
+    <div class="import-button-container">
+      <ImportButton class="home-import-button" />
+    </div>
 
     <button icon @click="openSettings">
       <Icon class="button-icon" icon="arcticons:settings" size="48px" />
     </button>
 
-    <div class="import-button-container">
-      <ImportButton class="home-import-button" />
-    </div>
+    <a href="https://osu.ppy.sh/beatmapsets?m=3" target="_blank">
+      <Icon class="button-icon" icon="arcticons:osu" size="48px" />
+    </a>
+
+    <a href="https://github.com/09Skyfall/web-osu-mania" target="_blank">
+      <Icon class="button-icon" icon="arcticons:github" size="48px" />
+    </a>
   </aside>
 </template>
 
@@ -35,13 +35,14 @@ aside {
 
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: start;
   gap: 1rem;
 
   width: 65px;
   height: 100dvh;
 
   background-color: var(--primary);
+  box-shadow: var(--primary) -2px 0 6px -2px;
   color: white;
 }
 
@@ -64,12 +65,11 @@ a {
 .import-button-container {
   position: relative;
   height: 80px;
-  margin-bottom: 5dvh;
+  margin-top: 2.5dvh;
 }
 
 .home-import-button {
   position: absolute;
   right: 0;
-  z-index: 2;
 }
 </style>
