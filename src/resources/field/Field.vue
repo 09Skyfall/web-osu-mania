@@ -16,11 +16,23 @@ import { useSettingsStore } from "../settings/store";
 const p = defineProps<{ level: BeatmapLevel }>();
 
 const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
-const { keyBindings } = useSettingsStore();
+
+const { keyBindings4k, keyBindings7k } = storeToRefs(useSettingsStore());
+
 const { hit: autoHit } = useAutoPlay();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
-const hitKeys = computed(() => (p.level ? (keyBindings.get(p.level.keyMode) ?? []) : []));
+
+const hitKeys = computed(() => {
+  switch (p.level.keyCount) {
+    case 4:
+      return keyBindings4k.value;
+    case 7:
+      return keyBindings7k.value;
+    default:
+      return [];
+  }
+});
 
 const timer = new Timer();
 
@@ -98,7 +110,7 @@ defineExpose({
         :key="i"
         :notes="level.hitObjects[i]"
         :hit-key="hitKey"
-        :color="getColumnColor(i, level.keyMode)"
+        :color="getColumnColor(i, level.keyCount)"
       />
     </div>
 
@@ -107,7 +119,7 @@ defineExpose({
         v-for="(hitKey, i) of hitKeys"
         :key="i"
         :hit-key
-        :color="getColumnColor(i, level.keyMode)"
+        :color="getColumnColor(i, level.keyCount)"
       />
     </div>
   </div>

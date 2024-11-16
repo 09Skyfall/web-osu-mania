@@ -4,7 +4,6 @@ import { curry, identity, range } from "lodash";
 import { assert } from "../../utils/assertions/assert";
 import { mapAsync } from "../../utils/functions/mapAsync";
 import { nonNull } from "../../utils/assertions/nonNull";
-import { MANIA_KEY_MODE } from "../settings/store";
 
 export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
@@ -20,7 +19,7 @@ export type BeatmapLevel = {
   artist: string; // TOOD: hoist
   OverallDifficulty: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   hitObjects: Note[][];
-  keyMode: MANIA_KEY_MODE;
+  keyCount: number;
   audioDelay: number;
   audioPreviewTime: number; // TOOD: hoist
 };
@@ -95,17 +94,10 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
       audioSource ??= nonNull(await c_getMedia(PROPERTY.AUDIO_FILENAME));
       imageSource ??= await c_getMedia(PROPERTY.IMAGE_FILENAME);
 
-      let keyMode;
       const keyCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
-      switch (keyCount) {
-        case 4:
-          keyMode = MANIA_KEY_MODE["4K"];
-          break;
-        case 7:
-          keyMode = MANIA_KEY_MODE["7K"];
-          break;
-        default:
-          throw new Error(`Key count of ${keyCount} is not yet supported.`);
+
+      if (![4, 7].includes(keyCount)) {
+        throw new Error(`Key count of ${keyCount} is not yet supported.`);
       }
 
       return {
@@ -117,7 +109,7 @@ export const oszToJson = async (file: File): Promise<Beatmap> => {
           nonNull(valueOf(PROPERTY.OVERALL_DIFFICULTY)),
         ) as BeatmapLevel["OverallDifficulty"],
         hitObjects: extractHitObjects(textContent, keyCount),
-        keyMode,
+        keyCount,
         audioDelay: Number(nonNull(valueOf(PROPERTY.AUDIO_LEAD_IN))),
         audioPreviewTime: Number(nonNull(valueOf(PROPERTY.PREVIEW_TIME))),
       } satisfies BeatmapLevel;

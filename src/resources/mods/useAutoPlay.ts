@@ -6,10 +6,10 @@ import { useSettingsStore } from "../settings/store";
 
 export const useAutoPlay = () => {
   const { COL_HEIGHT } = storeToRefs(useGameFieldStore());
-  const { SCROLL_SPEED } = storeToRefs(useSettingsStore());
+  const { scrollSpeed } = storeToRefs(useSettingsStore());
 
   const hit = async (note: CanvasNote, key: KeyboardEvent["key"]) => {
-    await wait((COL_HEIGHT.value - note.y) / SCROLL_SPEED.value);
+    await wait((COL_HEIGHT.value - note.y) / scrollSpeed.value);
     document.dispatchEvent(new KeyboardEvent("keydown", { key }));
     await wait(100);
     document.dispatchEvent(new KeyboardEvent("keyup", { key }));

@@ -1,15 +1,14 @@
 import { inRange } from "lodash";
 import { RGB } from "../colors/RGB";
 import { assert } from "../../utils/assertions/assert";
-import { MANIA_KEY_MODE } from "../settings/store";
 
-export const getColumnColor = (number: number, keyMode: MANIA_KEY_MODE) => {
+export const getColumnColor = (number: number, keyCount: number) => {
   const white = new RGB(255, 255, 255);
   const lightblue = new RGB(144, 213, 255);
   const yellow = new RGB(255, 204, 0);
 
-  switch (keyMode) {
-    case MANIA_KEY_MODE["4K"]: {
+  switch (keyCount) {
+    case 4: {
       assert(inRange(number, 0, 4));
       switch (number) {
         case 0:
@@ -23,7 +22,7 @@ export const getColumnColor = (number: number, keyMode: MANIA_KEY_MODE) => {
       return white;
     }
 
-    case MANIA_KEY_MODE["7K"]: {
+    case 7: {
       assert(inRange(number, 0, 7));
       switch (number) {
         case 0:
@@ -40,5 +39,8 @@ export const getColumnColor = (number: number, keyMode: MANIA_KEY_MODE) => {
 
       return white;
     }
+
+    default:
+      return white;
   }
 };

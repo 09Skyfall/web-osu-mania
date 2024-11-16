@@ -99,7 +99,7 @@ onBeforeMount(async () => {
           @click="onSelectLevel(level)"
         >
           <div class="list-item-content beatmap-level-list-item-content">
-            <span class="title">{{ level.levelTitle }} [{{ level.keyMode }}]</span>
+            <span class="title">{{ level.levelTitle }} [{{ level.keyCount }}K]</span>
           </div>
         </li>
       </template>

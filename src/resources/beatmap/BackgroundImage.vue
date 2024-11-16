@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { storeToRefs } from "pinia";
 import { computed } from "vue";
+import { useSettingsStore } from "../settings/store";
 
-const p = withDefaults(defineProps<{ src?: string; blur?: string; opacity?: string | number }>(), {
-  opacity: 1,
-  blur: "6px",
-});
+const p = defineProps<{ src?: string }>();
+
+const { backgroundBlur: blur, backgroundOpacity: opacity } = storeToRefs(useSettingsStore());
 
 const backgroundImage = computed(() => `url(${p.src})`);
 </script>
@@ -21,7 +22,7 @@ const backgroundImage = computed(() => `url(${p.src})`);
   width: 100dvw;
   height: 100dvh;
   content: "";
-  filter: blur(v-bind("blur")) opacity(v-bind("opacity"));
+  filter: blur(v-bind("`${blur}px`")) opacity(v-bind("opacity"));
   background-size: cover;
   background-image: v-bind("backgroundImage");
   /* transition: background-image 250ms; */

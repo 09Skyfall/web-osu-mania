@@ -17,7 +17,7 @@ const p = withDefaults(defineProps<{ notes: Note[]; hitKey: string; color?: RGB 
 });
 
 const { COL_HEIGHT, COL_WIDTH } = storeToRefs(useGameFieldStore());
-const { SCROLL_SPEED } = storeToRefs(useSettingsStore());
+const { scrollSpeed } = storeToRefs(useSettingsStore());
 
 const { canvas, ctx: canvasContext } = useCanvas({ alpha: false });
 
@@ -34,7 +34,7 @@ const drawNote = (note: CanvasNote, i: number, delta_t: number) => {
 
   canvasContext.value.fillStyle = p.color.toString();
 
-  note.y += SCROLL_SPEED.value * delta_t;
+  note.y += scrollSpeed.value * delta_t;
 
   switch (note.type) {
     case NOTE_TYPE.HEAD: {

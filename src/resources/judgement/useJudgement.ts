@@ -11,7 +11,8 @@ import { useSettingsStore } from "../settings/store";
 
 export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   const { COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());
-  const { SCROLL_SPEED } = storeToRefs(useSettingsStore());
+
+  const { scrollSpeed } = storeToRefs(useSettingsStore());
 
   const { active } = useKey(key); // TODO: aggiungere stato di pausa
 
@@ -19,8 +20,8 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   // TODO: potrebbe essere un composable JudgementWindows da passare come parametro a Judgement
   const windows = computed(() =>
     mapValues(JUDGEMENT_WINDOWS, (jw) => ({
-      top: COL_HEIGHT.value - (SCROLL_SPEED.value * jw) / 2,
-      bottom: COL_HEIGHT.value + (SCROLL_SPEED.value * jw) / 2,
+      top: COL_HEIGHT.value - (scrollSpeed.value * jw) / 2,
+      bottom: COL_HEIGHT.value + (scrollSpeed.value * jw) / 2,
     })),
   );
 
