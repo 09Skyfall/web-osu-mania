@@ -4,6 +4,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 export enum ROUTE {
   HOME = "HOME",
   GAME_FIELD = "GAME_FIELD",
+  SETTINGS = "SETTINGS",
 }
 
 const routes: RouteRecordRaw[] = [
@@ -12,6 +13,13 @@ const routes: RouteRecordRaw[] = [
     path: "/home",
     name: ROUTE.HOME,
     component: () => import("../views/Home.vue"),
+    children: [
+      {
+        path: "settings",
+        name: ROUTE.SETTINGS,
+        component: () => import("../views/Settings.vue"),
+      },
+    ],
   },
   {
     path: "/play/:beatmapId/:levelId",

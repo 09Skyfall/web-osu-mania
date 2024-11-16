@@ -7,6 +7,8 @@ import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
 import { router, ROUTE } from "../plugins/router";
 import Sidebar from "../components/Sidebar.vue";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
+import { RouterView } from "vue-router";
+import Overlay from "../components/Overlay.vue";
 
 const beatmapSelected = ref<Beatmap<string> | null>(null);
 const levelSelected = ref<BeatmapLevel | null>(null);
@@ -44,12 +46,18 @@ watch(beatmapSelected, async (selected) => {
 
 <template>
   <BackgroundImage :src="beatmapSelected?.imageSource">
-  <List
-    v-model:selected-beatmap="beatmapSelected"
-    v-model:selected-level="levelSelected"
-    @select:level="goToGameField"
-  />
+    <List
+      v-model:selected-beatmap="beatmapSelected"
+      v-model:selected-level="levelSelected"
+      @select:level="goToGameField"
+    />
 
     <Sidebar />
+
+    <RouterView v-slot="{ Component }">
+      <Overlay :active="Boolean(Component)">
+        <Component :is="Component" />
+      </Overlay>
+    </RouterView>
   </BackgroundImage>
 </template>

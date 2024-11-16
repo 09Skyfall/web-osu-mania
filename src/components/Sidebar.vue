@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import ImportButton from "../resources/beatmap/ImportButton.vue";
 import Icon from "./Icon.vue";
+import { ROUTE } from "../plugins/router";
 
-const openSettings = () => {
-  //
-};
+const router = useRouter();
+
+const openSettings = () => router.push({ name: ROUTE.SETTINGS });
 </script>
 
 <template>
