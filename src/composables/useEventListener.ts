@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from "vue";
+import { onBeforeUnmount, onMounted } from "vue";
 import { normalizeTargetElement } from "../utils/functions/normalizeTargetElement";
 
 export const useEventListener = (
@@ -10,7 +10,7 @@ export const useEventListener = (
     normalizeTargetElement(target).addEventListener(type, callback);
   });
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     normalizeTargetElement(target).removeEventListener(type, callback);
   });
 };
