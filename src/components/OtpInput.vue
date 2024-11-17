@@ -31,7 +31,6 @@ const onInput = (e: InputEvent, n: number) => {
     !p.lazy ||
     (inputs.value.length === Number(p.length) && inputs.value.every(({ value }) => Boolean(value)))
   ) {
-    console.log("emittign");
     emit(
       "update:model-value",
       inputs.value.map(({ value }) => value),
