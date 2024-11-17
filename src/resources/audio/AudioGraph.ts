@@ -1,9 +1,11 @@
-import { remove } from "lodash";
+import { remove, uniqueId } from "lodash";
+import { assert } from "../../utils/assertions/assert";
 
 export class AudioGraphNode<T extends AudioNode> {
   public node: T;
   public inbounds: AudioGraphNode<AudioNode>[] = [];
   public outbounds: AudioGraphNode<AudioNode>[] = [];
+  public id = uniqueId();
 
   constructor(node: T) {
     this.node = node;
@@ -18,8 +20,12 @@ export class AudioGraphNode<T extends AudioNode> {
   }
 
   disconnect<T extends AudioNode>(graphNode: AudioGraphNode<T>) {
-    remove(this.outbounds, (out_n) => out_n === graphNode);
-    remove(graphNode.inbounds, (in_n) => in_n === graphNode);
+    let [removed] = remove(this.outbounds, (out_n) => out_n.id === graphNode.id);
+    assert(removed);
+
+    [removed] = remove(graphNode.inbounds, (in_n) => in_n.id === this.id);
+    assert(removed);
+
     return this.node.disconnect(graphNode.node);
   }
 }

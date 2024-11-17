@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch, provide } from "vue";
-import { AudioStream } from "../resources/audio/AudioStream";
 import { beatmapDb } from "../resources/beatmap/database";
 import List from "../resources/beatmap/List.vue";
 import { Beatmap, BeatmapLevel } from "../resources/beatmap/store";
@@ -9,11 +8,12 @@ import Sidebar from "../components/Sidebar.vue";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 import { RouterView } from "vue-router";
 import Overlay from "../components/Overlay.vue";
+import { audioManager } from "../resources/audio/AudioManager";
 
 const beatmapSelected = ref<Beatmap<string> | null>(null);
 const levelSelected = ref<BeatmapLevel | null>(null);
 
-const audioStream = ref(new AudioStream());
+const audioStream = ref(audioManager.createStream());
 
 provide("audioStream", audioStream);
 
@@ -39,7 +39,7 @@ watch(beatmapSelected, async (selected) => {
   );
 
   if (audioStream.value.hasReader()) await audioStream.value.stop();
-  audioStream.value = new AudioStream({ stream: rs });
+  audioStream.value = audioManager.createStream({ stream: rs });
   audioStream.value.stream();
 });
 </script>

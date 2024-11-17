@@ -4,7 +4,6 @@ import { size, sum } from "lodash";
 import { useGamePause } from "../resources/field/useGamePause";
 import { useAsyncComputed } from "../composables/useAsyncComputed";
 import { beatmapDb } from "../resources/beatmap/database";
-import { AudioStream } from "../resources/audio/AudioStream";
 import { storeToRefs } from "pinia";
 import { GAME_STATE, useGameFieldStore } from "../resources/field/store";
 import Judgement from "../resources/judgement/Judgement.vue";
@@ -14,6 +13,7 @@ import HealthBar from "../resources/health/HealthBar.vue";
 import Field from "../resources/field/Field.vue";
 import { nonNull } from "../utils/assertions/nonNull";
 import GameOverOverlay from "../resources/field/GameOverOverlay.vue";
+import { audioManager } from "../resources/audio/AudioManager";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
@@ -34,7 +34,7 @@ const { value: audioReadableStream } = useAsyncComputed(null, async () => {
   return beatmapDb.getAudioStream(p.beatmapId, 0);
 });
 
-const audioStream = ref(new AudioStream());
+const audioStream = ref(audioManager.createStream());
 
 const field = ref<InstanceType<typeof Field> | null>(null);
 

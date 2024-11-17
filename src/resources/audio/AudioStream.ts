@@ -1,7 +1,8 @@
 import { assert } from "../../utils/assertions/assert";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
-import { AudioGraph } from "./AudioGraph";
+import { AudioGraph, AudioGraphNode } from "./AudioGraph";
 import { remove, uniqueId } from "lodash";
+import { AudioGraphUtils } from "./AudioGraphUtils";
 
 export type AudioStreamConstructorOptions = {
   stream?: AudioReadableStream;
@@ -10,15 +11,18 @@ export type AudioStreamConstructorOptions = {
 
 export type SubscriberCallback = (audioPath: AudioGraph) => unknown;
 
-export class AudioStream {
+export class AudioStream extends EventTarget {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
-  private _playingGraphs: AudioGraph[] = [];
   private _cancelled = false;
+  private _volume = 1;
+  private _playingGraphs: AudioGraph[] = [];
+  private _playingGains: GainNode[] = [];
   private _subscribers: { id: string; cb: SubscriberCallback }[] = [];
 
   public context: AudioContext;
 
   constructor({ stream, context = new AudioContext() }: AudioStreamConstructorOptions = {}) {
+    super();
     this._reader = stream?.getReader();
     this.context = context;
   }
@@ -40,7 +44,10 @@ export class AudioStream {
 
     const { done, value: chunk } = await this._reader.read();
 
-    if (done) return;
+    if (done) {
+      this.dispatchEvent(new CustomEvent("end"));
+      return;
+    }
 
     this._playChunk(chunk, startTime);
     startTime += chunk.length / chunk.sampleRate;
@@ -48,7 +55,10 @@ export class AudioStream {
     while (!this._cancelled) {
       const { done, value: chunk } = await this._reader.read();
 
-      if (done) return;
+      if (done) {
+        this.dispatchEvent(new CustomEvent("end"));
+        return;
+      }
 
       const bufferSource = this._playChunk(chunk, startTime);
 
@@ -56,6 +66,8 @@ export class AudioStream {
 
       startTime += chunk.length / chunk.sampleRate;
     }
+
+    this.dispatchEvent(new CustomEvent("cancelled"));
   }
 
   pause() {
@@ -99,8 +111,26 @@ export class AudioStream {
     return this._playingGraphs;
   }
 
+  get volume() {
+    return this._volume;
+  }
+
+  set volume(value: number) {
+    this._volume = value;
+    this._playingGains.forEach((gainNode) => (gainNode.gain.value = value));
+  }
+
   private createAudioGraph(input: AudioBufferSourceNode) {
-    return new AudioGraph({ input, output: this.context.destination });
+    const ag = new AudioGraph({ input, output: this.context.destination });
+
+    const gainNode = this.context.createGain();
+    gainNode.gain.value = this.volume;
+    AudioGraphUtils.insertNodeBetween(new AudioGraphNode(gainNode), ag.input, ag.output);
+
+    if (this._playingGains.length >= 2) this._playingGains.shift();
+    this._playingGains.push(gainNode);
+
+    return ag;
   }
 
   private _playChunk = (chunk: AudioChunk, startTime: number) => {

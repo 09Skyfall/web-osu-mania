@@ -7,16 +7,13 @@ import { useKey } from "../composables/useKey";
 import { useRouter } from "vue-router";
 import { ROUTE } from "../plugins/router";
 import OtpInput from "../components/OtpInput.vue";
-import {
-  SETTINGS_CATEGORY,
-  settingsCategories,
-  useSettingsStore,
-} from "../resources/settings/store";
+import { useSettingsStore } from "../resources/settings/store";
 import ExpandXTransition from "../components/ExpandXTransition.vue";
 import { primaryDarker, secondary } from "../resources/colors";
 import Icon from "../components/Icon.vue";
 import { storeToRefs } from "pinia";
 import Slider from "../components/Slider.vue";
+import { SETTINGS_CATEGORY, settingsCategories } from "../resources/settings/vos";
 
 const router = useRouter();
 
@@ -54,7 +51,7 @@ watch(
 
       const audioGraphNode = AudioGraphUtils.insertNodeBetween(
         new AudioGraphNode(transformer),
-        graph.input,
+        graph.output.inbounds[0],
         graph.output,
       );
 
@@ -124,6 +121,7 @@ onUnmounted(() => {
             <p>Master volume</p>
             <Slider
               v-model="masterVolume"
+              :min="0"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
