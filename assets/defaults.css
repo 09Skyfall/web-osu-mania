@@ -32,3 +32,9 @@ button {
   border: none;
   color: white
 }
+
+#app {
+  height: 100dvh;
+  width: 100dvw;
+  overflow: hidden;
+}
