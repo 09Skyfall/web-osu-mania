@@ -88,11 +88,11 @@ const push = (note: CanvasNote) => {
 
   currentNote++;
 
-  if (currentNote === p.notes.length - 1) done = true;
+  if (currentNote === p.notes.length) done = true;
 };
 
 const getNextNote = (): Note | undefined => {
-  if (currentNote >= p.notes.length - 1) return undefined;
+  if (currentNote >= p.notes.length) return undefined;
   return p.notes[currentNote];
 };
 
