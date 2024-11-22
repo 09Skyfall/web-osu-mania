@@ -14,6 +14,7 @@ import Field from "../resources/field/Field.vue";
 import { nonNull } from "../utils/assertions/nonNull";
 import GameOverOverlay from "../resources/field/GameOverOverlay.vue";
 import { audioManager } from "../resources/audio/AudioManager";
+import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
@@ -26,7 +27,12 @@ useGamePause();
 const { value: level } = useAsyncComputed(null, async () => {
   await beatmapDb.open();
   const beatmap = await beatmapDb.getItem("beatmaps", p.beatmapId);
-  return nonNull(beatmap.levels.find((level) => level.id === p.levelId));
+  const level = nonNull(beatmap.levels.find((level) => level.id === p.levelId));
+
+  return {
+    ...level,
+    imageSource: beatmap.imageSource ? URL.createObjectURL(beatmap.imageSource) : undefined,
+  };
 });
 
 const { value: audioReadableStream } = useAsyncComputed(null, async () => {
@@ -80,27 +86,27 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="wrapper" v-if="level">
+  <BackgroundImage :src="level?.imageSource">
+    <div v-if="level" class="container">
     <Field ref="field" :level="level" />
-
+      <Judgement class="judgement" />
     <HealthBar @update:health="onUpdateHealth" />
+    </div>
 
-    <Judgement class="judgement" />
-
-    <Score :total-notes="totalNotes" />
+    <Score class="score" :total-notes="totalNotes" />
 
     <PauseOverlay :active="gameState === GAME_STATE.PAUSED" />
 
     <GameOverOverlay :active="gameState === GAME_STATE.GAME_OVER" />
-  </div>
+  </BackgroundImage>
 </template>
 
 <style scoped>
-.wrapper {
-  display: grid;
-  grid-auto-columns: max-content;
-  grid-auto-flow: column;
+.container {
+  display: flex;
+  justify-content: center;
   height: 100dvh;
+  position: relative;
 }
 
 .judgement {
@@ -109,5 +115,13 @@ watchEffect(() => {
   left: 0;
   right: 0;
   margin: 0 auto;
+}
+
+.score {
+  font-size: 2rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0.5rem;
 }
 </style>
