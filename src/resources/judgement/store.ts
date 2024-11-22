@@ -9,3 +9,8 @@ export const JUDGEMENT_WINDOWS = {
 } as const;
 
 export type Judgement = keyof typeof JUDGEMENT_WINDOWS;
+
+export const getJudgementImgSrc = (j: Judgement) => {
+  const extension = j === JUDGEMENT.PERFECT ? "gif" : "png";
+  return `/assets/judgment-scores/judgement_${j.toLowerCase()}.${extension}`;
+};

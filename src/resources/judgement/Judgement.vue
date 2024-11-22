@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { judgementService } from "./JudgementService";
-import { Judgement } from "./store";
+import { getJudgementImgSrc, Judgement } from "./store";
 import { timeoutRef } from "../../composables/timeoutRef";
 import { uniqueId } from "lodash";
 import { computed } from "vue";
@@ -12,11 +12,8 @@ import { computed } from "vue";
 
 const currentJudgement = timeoutRef<{ value: Judgement; id: string } | null>(null, 500);
 
-const baseUrl = "../../../assets/judgment-scores";
 const src = computed(() => {
-  if (currentJudgement.value?.value === "PERFECT") return `${baseUrl}/judgement_perfect.gif`;
-  else if (currentJudgement.value)
-    return `${baseUrl}/judgement_${currentJudgement.value.value}.png`;
+  if (currentJudgement.value) return getJudgementImgSrc(currentJudgement.value.value);
   return null;
 });
 
