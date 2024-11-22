@@ -2,6 +2,7 @@ import { useKey } from "../../composables/useKey";
 import { useEventListener } from "../../composables/useEventListener";
 import { GAME_STATE, useGameFieldStore } from "./store";
 import { storeToRefs } from "pinia";
+import { onBeforeRouteLeave } from "vue-router";
 
 export const useGamePause = () => {
   const { gameState } = storeToRefs(useGameFieldStore());
@@ -20,6 +21,12 @@ export const useGamePause = () => {
       if (gameState.value === GAME_STATE.PAUSED) resume();
       else pause();
     },
+  });
+
+  onBeforeRouteLeave(() => {
+    if (gameState.value === GAME_STATE.RUNNING) pause();
+    else return true;
+    return false;
   });
 
   useEventListener(document, "visibilitychange", () => {
