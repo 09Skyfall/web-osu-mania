@@ -1,6 +1,6 @@
 import { assert } from "../../utils/assertions/assert";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
-import { AudioGraph, AudioGraphNode } from "./AudioGraph";
+import { AudioGraph, AudioGraphI, AudioGraphNode } from "./AudioGraph";
 import { remove, uniqueId } from "lodash";
 import { AudioGraphUtils } from "./AudioGraphUtils";
 
@@ -9,13 +9,13 @@ export type AudioStreamConstructorOptions = {
   context?: AudioContext;
 };
 
-export type SubscriberCallback = (audioPath: AudioGraph) => unknown;
+export type SubscriberCallback = (audioPath: AudioGraphI) => unknown;
 
 export class AudioStream extends EventTarget {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
   private _cancelled = false;
   private _volume = 1;
-  private _playingGraphs: AudioGraph[] = [];
+  private _playingGraphs: AudioGraphI[] = [];
   private _playingGains: GainNode[] = [];
   private _subscribers: { id: string; cb: SubscriberCallback }[] = [];
 

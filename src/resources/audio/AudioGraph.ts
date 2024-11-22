@@ -35,7 +35,12 @@ type AudioGraphConstructorParameters = {
   output: AudioDestinationNode;
 };
 
-export class AudioGraph {
+export type AudioGraphI = {
+  input: AudioGraphNode<AudioScheduledSourceNode>;
+  output: AudioGraphNode<AudioDestinationNode>;
+};
+
+export class AudioGraph implements AudioGraphI {
   private _input: AudioGraphNode<AudioScheduledSourceNode>;
   private _output: AudioGraphNode<AudioDestinationNode>;
 
