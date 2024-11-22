@@ -14,9 +14,9 @@ defineProps<{ active: boolean }>();
       <p class="title">Paused</p>
 
       <ButtonsContainer>
-        <ResumeButton />
-        <RetryButton />
-        <QuitButton />
+        <ResumeButton glow />
+        <RetryButton glow />
+        <QuitButton glow />
       </ButtonsContainer>
     </div>
   </Overlay>

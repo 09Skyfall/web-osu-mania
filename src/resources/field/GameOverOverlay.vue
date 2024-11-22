@@ -13,8 +13,8 @@ defineProps<{ active: boolean }>();
       <p class="title">Game over</p>
 
       <ButtonsContainer>
-        <RetryButton />
-        <QuitButton />
+        <RetryButton glow />
+        <QuitButton glow />
       </ButtonsContainer>
     </div>
   </Overlay>

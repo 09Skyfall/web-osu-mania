@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { RGB } from "../resources/colors/RGB";
 
-const p = withDefaults(defineProps<{ width?: string; height?: string; color: RGB }>(), {
-  width: "100%",
-  height: "80px",
-});
+const p = withDefaults(
+  defineProps<{ width?: string; height?: string; color: RGB; glow?: boolean }>(),
+  {
+    width: "100%",
+    height: "80px",
+  },
+);
 
 const darkenedColor = p.color.multiply(0.7);
 </script>
 
 <template>
   <!-- TODO: role button -->
-  <div class="button">
+  <div class="button" :class="{ glow }">
     <span>
       <slot />
     </span>
@@ -57,13 +60,25 @@ const darkenedColor = p.color.multiply(0.7);
     transition: transform 150ms;
   }
 
-  &::after {
-    content: "";
+  &.glow {
+    &::after {
+      content: "";
 
-    position: absolute;
-    z-index: -2;
+      position: absolute;
+      z-index: -2;
 
-    inset: 0;
+      inset: 0;
+    }
+
+    &:hover::after {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        v-bind("p.color.toString()") 20%,
+        v-bind("p.color.toString()") 80%,
+        transparent
+      );
+    }
   }
 
   &:hover {
@@ -74,16 +89,6 @@ const darkenedColor = p.color.multiply(0.7);
 
     & > span {
       transform: scaleX(1.05);
-    }
-
-    &::after {
-      background: linear-gradient(
-        90deg,
-        transparent,
-        v-bind("p.color.toString()") 20%,
-        v-bind("p.color.toString()") 80%,
-        transparent
-      );
     }
   }
 
