@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, onUnmounted, ref, watch } from "vue";
 import { AudioStream } from "../resources/audio/AudioStream";
-import { AudioGraphNode } from "../resources/audio/AudioGraph";
+import { AudioGraphI, AudioGraphNode } from "../resources/audio/AudioGraph";
 import { AudioGraphUtils } from "../resources/audio/AudioGraphUtils";
 import { useKey } from "../composables/useKey";
 import { useRouter } from "vue-router";
@@ -14,6 +14,7 @@ import Icon from "../components/Icon.vue";
 import { storeToRefs } from "pinia";
 import Slider from "../components/Slider.vue";
 import { SETTINGS_CATEGORY, settingsCategories } from "../resources/settings/vos";
+import { UnsubscribeCallback } from "../utils/classes/Subscribable";
 
 const router = useRouter();
 
@@ -33,7 +34,7 @@ const audioStream = inject("audioStream", ref(new AudioStream()));
 
 const audioGraphNodes: AudioGraphNode<BiquadFilterNode>[] = [];
 
-let unsubscribeId = "";
+let unsubscribeFromAudioStream: null | UnsubscribeCallback = null;
 
 const selectedCategory = ref<SETTINGS_CATEGORY>(SETTINGS_CATEGORY.INPUT);
 
@@ -42,22 +43,25 @@ const exit = () => {
   setTimeout(() => router.replace({ name: ROUTE.HOME }), 250); // ew
 };
 
+const onUpdateGraph = (graph: AudioGraphI) => {
+  const transformer = audioStream.value.context.createBiquadFilter();
+  transformer.type = "lowpass";
+
+  const audioGraphNode = AudioGraphUtils.insertNodeBetween(
+    new AudioGraphNode(transformer),
+    graph.output.inbounds[0],
+    graph.output,
+  );
+
+  audioGraphNodes.push(audioGraphNode);
+  if (audioGraphNodes.length > 2) audioGraphNodes.shift();
+};
+
 watch(
   audioStream,
   (value) => {
-    unsubscribeId = value.subscribe((graph) => {
-      const transformer = audioStream.value.context.createBiquadFilter();
-      transformer.type = "lowpass";
-
-      const audioGraphNode = AudioGraphUtils.insertNodeBetween(
-        new AudioGraphNode(transformer),
-        graph.output.inbounds[0],
-        graph.output,
-      );
-
-      audioGraphNodes.push(audioGraphNode);
-      if (audioGraphNodes.length > 2) audioGraphNodes.shift();
-    });
+    value.currentGraphs.forEach(onUpdateGraph);
+    unsubscribeFromAudioStream = value.subscribe("update:graphs", onUpdateGraph);
   },
   { immediate: true },
 );
@@ -65,7 +69,7 @@ watch(
 useKey("Escape", { on_key_up: exit });
 
 onUnmounted(() => {
-  audioStream.value.unsubscribe(unsubscribeId);
+  unsubscribeFromAudioStream?.();
   audioGraphNodes.forEach((node) => AudioGraphUtils.removeNode(node, { inbound: 0, outbound: 0 }));
 });
 </script>

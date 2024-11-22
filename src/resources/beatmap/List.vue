@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { beatmapDb } from "./database";
 import { Beatmap, BeatmapLevel } from "./store";
-import { computed, inject, onBeforeMount, onMounted, ref } from "vue";
+import { computed, inject, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { toArray } from "../../utils/functions/toArray";
 import List from "../../components/List.vue";
@@ -9,6 +9,8 @@ import FrequencyVisualizer from "../audio/FrequencyVisualizer.vue";
 import { AudioStream } from "../audio/AudioStream";
 import { random } from "lodash";
 import { mapAsync } from "../../utils/functions/mapAsync";
+import { AudioGraphI } from "../audio/AudioGraph";
+import { UnsubscribeCallback } from "../../utils/classes/Subscribable";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -23,10 +25,17 @@ const p = defineProps<{
 
 const audioStream = inject("audioStream", ref(new AudioStream()));
 
+let unsubscribeFromAudioStream: UnsubscribeCallback | null = null;
+
 const audioAnalyser = computed(() => {
   const analyser = audioStream.value.context.createAnalyser();
   analyser.fftSize = 512;
-  audioStream.value.subscribe((graph) => graph.output.inbounds[0].node.connect(analyser));
+
+  const onUpdateGraph = (graph: AudioGraphI) => graph.output.inbounds[0].node.connect(analyser);
+
+  audioStream.value.currentGraphs.forEach(onUpdateGraph);
+  unsubscribeFromAudioStream = audioStream.value.subscribe("update:graphs", onUpdateGraph);
+
   return analyser;
 });
 
@@ -83,6 +92,8 @@ onMounted(() => {
     beatmaps[random(0, beatmaps.length - 1, false)].click();
   }, 100);
 });
+
+onUnmounted(() => unsubscribeFromAudioStream?.());
 </script>
 
 <template>

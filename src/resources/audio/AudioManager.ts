@@ -17,8 +17,8 @@ class AudioManager {
 
     const i = this._streams.push(stream);
 
-    stream.addEventListener("cancelled", () => this._streams.slice(i, 1), { once: true });
-    stream.addEventListener("end", () => this._streams.slice(i, 1), { once: true });
+    stream.subscribe("cancelled", () => this._streams.slice(i, 1), { once: true });
+    stream.subscribe("end", () => this._streams.slice(i, 1), { once: true });
 
     return stream;
   }

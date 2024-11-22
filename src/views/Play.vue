@@ -71,13 +71,9 @@ const onUpdateHealth = (health: number) => {
 
 const onGameOver = pause;
 
-audioStream.value.addEventListener(
-  "end",
-  () => {
-    gameState.value = GAME_STATE.GAME_FINISH;
-  },
-  { once: true },
-);
+audioStream.value.subscribe("end", () => (gameState.value = GAME_STATE.GAME_FINISH), {
+  once: true,
+});
 
 watch(gameState, (state) => {
   switch (state) {

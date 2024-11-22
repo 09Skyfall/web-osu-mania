@@ -1,23 +1,26 @@
 import { assert } from "../../utils/assertions/assert";
 import { AudioReadableStream, AudioChunk, audioChunkToAudioBuffer } from "./store";
 import { AudioGraph, AudioGraphI, AudioGraphNode } from "./AudioGraph";
-import { remove, uniqueId } from "lodash";
 import { AudioGraphUtils } from "./AudioGraphUtils";
+import { Subscribable } from "../../utils/classes/Subscribable";
 
 export type AudioStreamConstructorOptions = {
   stream?: AudioReadableStream;
   context?: AudioContext;
 };
 
-export type SubscriberCallback = (audioPath: AudioGraphI) => unknown;
+export type AudioStreamEventsDict = {
+  "update:graphs": AudioGraphI;
+  end: void;
+  cancelled: void;
+};
 
-export class AudioStream extends EventTarget {
+export class AudioStream extends Subscribable<AudioStreamEventsDict> {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
   private _cancelled = false;
   private _volume = 1;
   private _playingGraphs: AudioGraphI[] = [];
   private _playingGains: GainNode[] = [];
-  private _subscribers: { id: string; cb: SubscriberCallback }[] = [];
 
   public context: AudioContext;
 
@@ -45,7 +48,7 @@ export class AudioStream extends EventTarget {
     const { done, value: chunk } = await this._reader.read();
 
     if (done) {
-      this.dispatchEvent(new CustomEvent("end"));
+      this.publish("end");
       return;
     }
 
@@ -56,7 +59,7 @@ export class AudioStream extends EventTarget {
       const { done, value: chunk } = await this._reader.read();
 
       if (done) {
-        this.dispatchEvent(new CustomEvent("end"));
+        this.publish("end");
         return;
       }
 
@@ -67,7 +70,7 @@ export class AudioStream extends EventTarget {
       startTime += chunk.length / chunk.sampleRate;
     }
 
-    this.dispatchEvent(new CustomEvent("cancelled"));
+    this.publish("cancelled");
   }
 
   pause() {
@@ -90,21 +93,6 @@ export class AudioStream extends EventTarget {
     this._playingGraphs.forEach((p) => p.input.node.stop());
 
     return this._reader.cancel();
-  }
-
-  subscribe(cb: SubscriberCallback) {
-    const id = uniqueId("audio-stream-subscriber");
-
-    this._subscribers.push({ cb, id });
-
-    this._playingGraphs.forEach((graph) => cb(graph));
-
-    return id;
-  }
-
-  unsubscribe(id: string) {
-    const [removed] = remove(this._subscribers, (subscriber) => subscriber.id === id);
-    assert(Boolean(removed));
   }
 
   get currentGraphs() {
@@ -144,7 +132,7 @@ export class AudioStream extends EventTarget {
     const audioGraph = this.createAudioGraph(bufferSource);
     this._playingGraphs.push(audioGraph);
 
-    this._subscribers.forEach(({ cb }) => cb(audioGraph));
+    this.publish("update:graphs", audioGraph);
 
     return bufferSource;
   };
