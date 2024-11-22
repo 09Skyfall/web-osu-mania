@@ -14,6 +14,7 @@ import Field from "../resources/field/Field.vue";
 import { nonNull } from "../utils/assertions/nonNull";
 import GameOverOverlay from "../resources/field/GameOverOverlay.vue";
 import { audioManager } from "../resources/audio/AudioManager";
+import { assert } from "../utils/assertions/assert";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
@@ -24,7 +25,7 @@ gameState.value = GAME_STATE.RUNNING;
 
 useGamePause();
 
-const { value: level } = useAsyncComputed(null, async () => {
+const { value: level, loading: loadingLevel } = useAsyncComputed(null, async () => {
   await beatmapDb.open();
   const beatmap = await beatmapDb.getItem("beatmaps", p.beatmapId);
   const level = nonNull(beatmap.levels.find((level) => level.id === p.levelId));
@@ -35,7 +36,7 @@ const { value: level } = useAsyncComputed(null, async () => {
   };
 });
 
-const { value: audioReadableStream } = useAsyncComputed(null, async () => {
+const { value: audioReadableStream, loading: loadingAudio } = useAsyncComputed(null, async () => {
   await beatmapDb.open();
   return beatmapDb.getAudioStream(p.beatmapId, 0);
 });
@@ -45,6 +46,8 @@ const audioStream = ref(audioManager.createStream());
 const field = ref<InstanceType<typeof Field> | null>(null);
 
 const totalNotes = computed(() => sum(level.value?.hitObjects.map(size)));
+
+const loading = computed(() => loadingLevel.value || loadingAudio.value || !field.value);
 
 const pause = () => {
   nonNull(field.value).pause();
@@ -74,14 +77,16 @@ watch(gameState, (state) => {
   }
 });
 
-watchEffect(() => {
-  // TODO: non mi piace molto come check
-  if (!level.value || !audioReadableStream.value || !field.value) return;
+const unwatch = watch(loading, (_loading) => {
+    if (_loading) return;
+
+  assert(field.value && audioReadableStream.value);
 
   audioStream.value.setReader(audioReadableStream.value);
   audioStream.value.stream();
-  // TODO: Account for output latency
-  field.value.play();
+  field.value.play(); // TODO: Account for output latency
+  
+  requestIdleCallback(unwatch);
 });
 </script>
 
