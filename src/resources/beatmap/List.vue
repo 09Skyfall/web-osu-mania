@@ -8,6 +8,7 @@ import List from "../../components/List.vue";
 import FrequencyVisualizer from "../audio/FrequencyVisualizer.vue";
 import { AudioStream } from "../audio/AudioStream";
 import { random } from "lodash";
+import { mapAsync } from "../../utils/functions/mapAsync";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -56,11 +57,23 @@ const onSelectLevel = (level: BeatmapLevel) => {
 onBeforeMount(async () => {
   await beatmapDb.open();
 
-  beatmaps.value = toArray(await beatmapDb.getItem("beatmaps")).map((b) => ({
-    ...b,
-    audioSource: URL.createObjectURL(b.audioSource),
-    imageSource: b.imageSource ? URL.createObjectURL(b.imageSource) : undefined,
-  }));
+  if ((await beatmapDb.count("beatmaps")) === 0) {
+    const defaultBeatmaps = import.meta.glob("/assets/default-beatmaps/**.osz");
+
+    const imports = (await mapAsync(Object.keys(defaultBeatmaps), (path) =>
+      defaultBeatmaps[path](),
+    )) as { default: string }[];
+
+    const files = await mapAsync(imports, async (i) => (await fetch(i.default)).blob());
+
+    beatmapDb.addItem(files);
+  } else {
+    beatmaps.value = toArray(await beatmapDb.getItem("beatmaps")).map((b) => ({
+      ...b,
+      audioSource: URL.createObjectURL(b.audioSource),
+      imageSource: b.imageSource ? URL.createObjectURL(b.imageSource) : undefined,
+    }));
+  }
 });
 
 onMounted(() => {
