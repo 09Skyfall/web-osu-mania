@@ -1,6 +1,6 @@
 import { MaybeArray } from "../../types/MaybeArray";
 import { SuperchargedIndexedDB } from "../../utils/SuperchargedIndexedDB/SuperchargedIndexedDB";
-import { Beatmap } from "./store";
+import { Beatmap, oszToJson } from "./store";
 import {
   AudioChunk,
   AudioReadableStream,
@@ -10,6 +10,7 @@ import {
 import { assert } from "../../utils/assertions/assert";
 import { mapAsync } from "../../utils/functions/mapAsync";
 import { toArray } from "../../utils/functions/toArray";
+import { fulfilledAndRejected } from "../../utils/functions/fulfilledAndRejected";
 
 const DATABASE_NAME = "Osu!Web-beatmaps-store";
 const DATABASE_VERSION = 1;
@@ -36,21 +37,36 @@ class BeatmapsDatabase {
     ]);
   }
 
-  async addItem(items: MaybeArray<Beatmap>) {
+  async addItem(files: MaybeArray<File | Blob>) {
     assert(this.db, "Cannot add item before opening the connection to the databse.");
 
-    const beatmapsChunks = await mapAsync(toArray(items), async (beatmap) => {
+    const beatmapsObjectStore = await this.db.objectStore("beatmaps");
+    const songsObjectStore = await this.db.objectStore("songs");
+
+    const { fulfilled: beatmaps, rejected: rejectedBeatmaps } = await fulfilledAndRejected(
+      await Promise.allSettled(toArray(files).map(oszToJson)),
+    );
+
+    rejectedBeatmaps.forEach(console.error);
+
+    const beatmapsChunks = await mapAsync(toArray(beatmaps), async (beatmap) => {
       return (await blobToAudioChunks(beatmap.audioSource, this.CHUNK_DURATION)).map((chunk) => ({
         ...chunk,
         beatmapId: beatmap.id,
       }));
     });
 
-    const songsObjectStore = await this.db.objectStore("songs");
-    await songsObjectStore.add(beatmapsChunks.flat());
+    const { rejected: rejectedSongs } = await fulfilledAndRejected(
+      await Promise.allSettled(beatmapsChunks.map((bChunk) => songsObjectStore.add(bChunk))),
+    );
 
-    const beatmapsObjectStore = await this.db.objectStore("beatmaps");
-    await beatmapsObjectStore.add(items);
+    rejectedSongs.forEach(console.error);
+
+    const { rejected: rejectedKeys } = await fulfilledAndRejected(
+      await Promise.allSettled(beatmaps.map((f) => beatmapsObjectStore.add(f))),
+    );
+
+    rejectedKeys.forEach(console.error);
   }
 
   removeItem() {

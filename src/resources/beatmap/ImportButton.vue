@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import Icon from "../../components/Icon.vue";
 import { beatmapDb } from "./database";
-import { oszToJson } from "./store";
 
 const onSelectFile = async (e: Event) => {
   const files = (e.target as HTMLInputElement)?.files;
   if (!files) return;
 
   await beatmapDb.open();
-  [...files].forEach(async (file) => {
-    const map = await oszToJson(file);
-    await beatmapDb.addItem(map);
-    console.log(`Successfully imported ${file.name}`);
-  });
+
+  await beatmapDb.addItem([...files]);
 };
 </script>
 

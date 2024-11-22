@@ -68,8 +68,8 @@ const beatmapLevelProperties = new Map([
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
 ]);
 
-export const oszToJson = async (file: File): Promise<Beatmap> => {
-  assert(file.name.endsWith(".osz"), "Expected .osz file");
+export const oszToJson = async (file: Blob): Promise<Beatmap> => {
+  // TODO: check that the file given is actually a .osz
 
   const reader = new ZipReader(new BlobReader(file));
   const entries = await reader.getEntries();
