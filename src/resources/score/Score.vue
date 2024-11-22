@@ -1,20 +1,19 @@
 <script setup lang="ts">
+import { watch } from "vue";
 import { judgementService } from "../judgement/JudgementService";
 import { useScore } from "./useScore";
+
+const emit = defineEmits<{ "update:score": [score: number] }>();
 
 const p = defineProps<{ totalNotes: number }>();
 
 const { score, update: updateScore } = useScore(() => p.totalNotes);
 
 judgementService.onAdd(updateScore);
+
+watch(score, (_score) => emit("update:score", _score));
 </script>
 
 <template>
-  <span class="score">{{ Math.round(score) }}</span>
+  <span>{{ Math.round(score) }}</span>
 </template>
-
-<style scoped>
-.score {
-  font-size: 2rem;
-}
-</style>

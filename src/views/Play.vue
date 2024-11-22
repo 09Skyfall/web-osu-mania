@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, ref, watch } from "vue";
 import { size, sum } from "lodash";
 import { useGamePause } from "../resources/field/useGamePause";
 import { useAsyncComputed } from "../composables/useAsyncComputed";
@@ -16,6 +16,7 @@ import GameOverOverlay from "../resources/field/GameOverOverlay.vue";
 import { audioManager } from "../resources/audio/AudioManager";
 import { assert } from "../utils/assertions/assert";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
+import GameFinishOverlay from "../resources/field/GameFinishOverlay.vue";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
@@ -49,6 +50,8 @@ const totalNotes = computed(() => sum(level.value?.hitObjects.map(size)));
 
 const loading = computed(() => loadingLevel.value || loadingAudio.value || !field.value);
 
+const score = ref(0);
+
 const pause = () => {
   nonNull(field.value).pause();
   audioStream.value.pause();
@@ -68,6 +71,14 @@ const onUpdateHealth = (health: number) => {
 
 const onGameOver = pause;
 
+audioStream.value.addEventListener(
+  "end",
+  () => {
+    gameState.value = GAME_STATE.GAME_FINISH;
+  },
+  { once: true },
+);
+
 watch(gameState, (state) => {
   switch (state) {
     case GAME_STATE.PAUSED:
@@ -78,14 +89,14 @@ watch(gameState, (state) => {
 });
 
 const unwatch = watch(loading, (_loading) => {
-    if (_loading) return;
+  if (_loading) return;
 
   assert(field.value && audioReadableStream.value);
 
   audioStream.value.setReader(audioReadableStream.value);
   audioStream.value.stream();
   field.value.play(); // TODO: Account for output latency
-  
+
   requestIdleCallback(unwatch);
 });
 </script>
@@ -93,16 +104,18 @@ const unwatch = watch(loading, (_loading) => {
 <template>
   <BackgroundImage :src="level?.imageSource">
     <div v-if="level" class="container">
-    <Field ref="field" :level="level" />
+      <Field ref="field" :level="level" />
       <Judgement class="judgement" />
-    <HealthBar @update:health="onUpdateHealth" />
+      <HealthBar @update:health="onUpdateHealth" />
     </div>
 
-    <Score class="score" :total-notes="totalNotes" />
+    <Score class="score" :total-notes="totalNotes" @update:score="score = $event" />
 
     <PauseOverlay :active="gameState === GAME_STATE.PAUSED" />
 
     <GameOverOverlay :active="gameState === GAME_STATE.GAME_OVER" />
+
+    <GameFinishOverlay :active="gameState === GAME_STATE.GAME_FINISH" :score />
   </BackgroundImage>
 </template>
 

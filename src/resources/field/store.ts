@@ -7,6 +7,7 @@ export enum GAME_STATE {
   PAUSED = "PAUSED",
   RUNNING = "RUNNING",
   GAME_OVER = "GAME_OVER",
+  GAME_FINISH = "GAME_FINISH",
 }
 
 export const useGameFieldStore = defineStore("game-field", () => {
