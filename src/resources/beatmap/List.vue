@@ -7,8 +7,9 @@ import { toArray } from "../../utils/functions/toArray";
 import List from "../../components/List.vue";
 import FrequencyVisualizer from "../audio/FrequencyVisualizer.vue";
 import { AudioStream } from "../audio/AudioStream";
-import { random } from "lodash";
+import { last, random } from "lodash";
 import { mapAsync } from "../../utils/functions/mapAsync";
+import { nonNull } from "../../utils/assertions/nonNull";
 import { AudioGraphI } from "../audio/AudioGraph";
 import { UnsubscribeCallback } from "../../utils/classes/Subscribable";
 
@@ -63,6 +64,24 @@ const onSelectLevel = (level: BeatmapLevel) => {
   emit("update:selected-level", level);
 };
 
+const unsubscribeFromDb = beatmapDb.subscribe("add", async (keys) => {
+  const maps = await mapAsync(keys, async (key) => {
+    const beatmap = await beatmapDb.getItem("beatmaps", key);
+    return {
+      ...beatmap,
+      audioSource: URL.createObjectURL(beatmap.audioSource),
+      imageSource: beatmap.imageSource ? URL.createObjectURL(beatmap.imageSource) : undefined,
+    };
+  });
+
+  beatmaps.value.push(...maps);
+
+  requestAnimationFrame(() => {
+    const el = document.getElementById(nonNull(last(beatmaps.value)).id);
+    el?.click();
+  });
+});
+
 onBeforeMount(async () => {
   await beatmapDb.open();
 
@@ -93,7 +112,10 @@ onMounted(() => {
   }, 100);
 });
 
-onUnmounted(() => unsubscribeFromAudioStream?.());
+onUnmounted(() => {
+  unsubscribeFromDb();
+  unsubscribeFromAudioStream?.();
+});
 </script>
 
 <template>
@@ -104,6 +126,7 @@ onUnmounted(() => unsubscribeFromAudioStream?.());
         :class="{ selected: isBeatmapSelected(beatmap.id) }"
         :style="`--background-image-src: url('${beatmap.imageSource}')`"
         :p-multiplier="isBeatmapSelected(beatmap.id) ? 1.1 : 1"
+        :id="beatmap.id"
         @click="onSelectBeatmap($event, beatmap)"
       >
         <div class="list-item-content beatmap-list-item-content">

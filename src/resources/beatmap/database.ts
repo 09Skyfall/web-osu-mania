@@ -11,6 +11,7 @@ import { assert } from "../../utils/assertions/assert";
 import { mapAsync } from "../../utils/functions/mapAsync";
 import { toArray } from "../../utils/functions/toArray";
 import { fulfilledAndRejected } from "../../utils/functions/fulfilledAndRejected";
+import { Subscribable } from "../../utils/classes/Subscribable";
 
 const DATABASE_NAME = "Osu!Web-beatmaps-store";
 const DATABASE_VERSION = 1;
@@ -20,7 +21,9 @@ type BeatmapsDB = {
   songs: AudioChunk;
 };
 
-class BeatmapsDatabase {
+type BeatmapsDBEventsDict = { add: IDBValidKey[] };
+
+class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
   private db: SuperchargedIndexedDB<BeatmapsDB> | null = null;
   private readonly CHUNK_DURATION = 10; // in seconds
 
@@ -62,11 +65,13 @@ class BeatmapsDatabase {
 
     rejectedSongs.forEach(console.error);
 
-    const { rejected: rejectedKeys } = await fulfilledAndRejected(
+    const { fulfilled: keys, rejected: rejectedKeys } = await fulfilledAndRejected(
       await Promise.allSettled(beatmaps.map((f) => beatmapsObjectStore.add(f))),
     );
 
     rejectedKeys.forEach(console.error);
+
+    if (keys.length) this.publish("add", keys.flat());
   }
 
   removeItem() {
