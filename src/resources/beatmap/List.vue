@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { beatmapDb } from "./database";
 import { Beatmap, BeatmapLevel } from "./store";
-import { computed, inject, onBeforeMount, ref } from "vue";
+import { computed, inject, onBeforeMount, onMounted, ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { toArray } from "../../utils/functions/toArray";
 import List from "../../components/List.vue";
 import FrequencyVisualizer from "../audio/FrequencyVisualizer.vue";
 import { AudioStream } from "../audio/AudioStream";
+import { random } from "lodash";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -60,6 +61,14 @@ onBeforeMount(async () => {
     audioSource: URL.createObjectURL(b.audioSource),
     imageSource: b.imageSource ? URL.createObjectURL(b.imageSource) : undefined,
   }));
+});
+
+onMounted(() => {
+  // TODO: find a better way than using a random setTimeout
+  setTimeout(() => {
+    const beatmaps = document.querySelectorAll<HTMLLIElement>(".beatmap-list-item");
+    beatmaps[random(0, beatmaps.length - 1, false)].click();
+  }, 100);
 });
 </script>
 
