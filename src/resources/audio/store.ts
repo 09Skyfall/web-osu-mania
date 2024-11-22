@@ -36,7 +36,7 @@ export const blobToAudioChunks = async (
     channels: channels.map((channelData) =>
       channelData.slice(chunk_number * chunkLength, (chunk_number + 1) * chunkLength),
     ),
-    length: chunkLength,
+    length: Math.min(chunkLength, length - chunk_number * chunkLength),
     sampleRate,
     numberOfChannels,
   }));
