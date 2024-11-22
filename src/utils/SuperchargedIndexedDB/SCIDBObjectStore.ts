@@ -42,6 +42,10 @@ export class SCIDBObjectStore<T = unknown> {
     return requests.map((request) => request.result);
   }
 
+  async count() {
+    return this._transaction((objectStore) => objectStore.count());
+  }
+
   async *where(query: IDBKeyRange): AsyncGenerator<T, void, unknown> {
     let finished = false;
     let _query = query;

@@ -92,6 +92,13 @@ class BeatmapsDatabase {
     return objectStore.get(key);
   }
 
+  async count<Store extends keyof BeatmapsDB>(store: Store) {
+    assert(this.db, "Cannot get item before opening the connection to the databse.");
+
+    const beatmapsStore = await this.db.objectStore(store);
+    return (await beatmapsStore.count()).result;
+  }
+
   /**
    * @param offset in seconds
    */
