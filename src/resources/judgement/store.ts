@@ -1,14 +1,24 @@
 const OD = 5;
+
+export enum JUDGEMENT {
+  PERFECT = "PERFECT",
+  GREAT = "GREAT",
+  GOOD = "GOOD",
+  OK = "OK",
+  MEH = "MEH",
+  MISS = "MISS",
+}
+
 export const JUDGEMENT_WINDOWS = {
-  PERFECT: 16,
-  GREAT: 64 - 3 * OD,
-  GOOD: 97 - 3 * OD,
-  OK: 127 - 3 * OD,
-  MEH: 151 - 3 * OD,
-  MISS: 188 - 3 * OD,
+  [JUDGEMENT.PERFECT]: 16,
+  [JUDGEMENT.GREAT]: 64 - 3 * OD,
+  [JUDGEMENT.GOOD]: 97 - 3 * OD,
+  [JUDGEMENT.OK]: 127 - 3 * OD,
+  [JUDGEMENT.MEH]: 151 - 3 * OD,
+  [JUDGEMENT.MISS]: 188 - 3 * OD,
 } as const;
 
-export type Judgement = keyof typeof JUDGEMENT_WINDOWS;
+export type Judgement = keyof typeof JUDGEMENT;
 
 export const getJudgementImgSrc = (j: Judgement) => {
   const extension = j === JUDGEMENT.PERFECT ? "gif" : "png";
