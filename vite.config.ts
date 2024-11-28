@@ -7,4 +7,5 @@ import svgLoader from "vite-svg-loader";
 export default defineConfig({
   plugins: [vue(), svgLoader(), checker({ vueTsc: true })],
   assetsInclude: ["**/*.osz"],
+  base: "/web-osu-mania/",
 });
