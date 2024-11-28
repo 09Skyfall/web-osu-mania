@@ -1,3 +1,10 @@
+import perfectImgUrl from "../../../assets/judgment-scores/judgement_perfect.gif";
+import greatImgUrl from "../../../assets/judgment-scores/judgement_great.png";
+import goodImgUrl from "../../../assets/judgment-scores/judgement_good.png";
+import okImgUrl from "../../../assets/judgment-scores/judgement_ok.png";
+import mehImgUrl from "../../../assets/judgment-scores/judgement_meh.png";
+import missImgUrl from "../../../assets/judgment-scores/judgement_miss.png";
+
 const OD = 5;
 
 export enum JUDGEMENT {
@@ -21,6 +28,18 @@ export const JUDGEMENT_WINDOWS = {
 export type Judgement = keyof typeof JUDGEMENT;
 
 export const getJudgementImgSrc = (j: Judgement) => {
-  const extension = j === JUDGEMENT.PERFECT ? "gif" : "png";
-  return `/assets/judgment-scores/judgement_${j.toLowerCase()}.${extension}`;
+  switch (j) {
+    case "PERFECT":
+      return perfectImgUrl;
+    case "GREAT":
+      return greatImgUrl;
+    case "GOOD":
+      return goodImgUrl;
+    case "OK":
+      return okImgUrl;
+    case "MEH":
+      return mehImgUrl;
+    case "MISS":
+      return missImgUrl;
+  }
 };
