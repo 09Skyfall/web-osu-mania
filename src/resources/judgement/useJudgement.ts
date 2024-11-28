@@ -27,15 +27,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
 
   // internal state
   let judgingLongNote = false;
-  let earlyRelease = false;
-
-  // TODO: spostare nel composable usejudgementwindows
-  const drawJudgementLines = (ctx) => {
-    Object.values(windows.value).forEach(({ top }) => {
-      ctx.fillStyle = "red";
-      ctx.fillRect(0, top, 100, 1);
-    });
-  };
+  // let earlyRelease = false; TODO
 
   const judgeDeletedNote = (note: CanvasNote) => {
     if (!judged.includes(note.id)) {
@@ -65,7 +57,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
         judge(toBeJudged);
       } else {
         // TODO: implement earlyRelease logic (prevents judgements better than MEH for tail note)
-        earlyRelease = true;
+        // earlyRelease = true;
       }
     }
   };
