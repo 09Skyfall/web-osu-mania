@@ -5,8 +5,8 @@ type ClampRefOptions = {
   max: number;
 };
 
-export function clampRef<T extends number | null | undefined>(
-  value: T,
+export function clampRef(
+  value: number,
   { min, max }: ClampRefOptions = {
     min: Number.MIN_SAFE_INTEGER,
     max: Number.MAX_SAFE_INTEGER,
@@ -19,11 +19,7 @@ export function clampRef<T extends number | null | undefined>(
         return value;
       },
       set(newValue) {
-        if (newValue === null || newValue === undefined) {
-          value = newValue;
-        } else {
-          value = Math.max(min, Math.min(max, newValue));
-        }
+        value = Math.max(min, Math.min(max, newValue));
         trigger();
       },
     };

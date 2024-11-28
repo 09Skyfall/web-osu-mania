@@ -7,7 +7,7 @@ import { clampRef } from "../../composables/clampRef";
 
 const emit = defineEmits<{ "update:health": [health: number] }>();
 
-const health = clampRef<number>(1, { min: 0, max: 1 });
+const health = clampRef(1, { min: 0, max: 1 });
 
 const lowHealthColor = new RGB(213, 0, 0);
 const highHealthColor = new RGB(56, 142, 60);
