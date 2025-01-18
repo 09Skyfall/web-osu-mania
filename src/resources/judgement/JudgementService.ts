@@ -1,5 +1,4 @@
-import { MaybeArray } from "../../types/MaybeArray";
-import { toArray } from "../../utils/functions/toArray";
+import { Subscribable } from "../../utils/classes/Subscribable";
 import { Judgement } from "./store";
 
 /**
@@ -9,20 +8,6 @@ import { Judgement } from "./store";
  * piuttosto che un'unica sequenza che raggruppa i valori delle varie colonne
  */
 
-type OnAddJudgementFunction = (judgement: Judgement) => void;
-
-class JudgementService {
-  private cbs: OnAddJudgementFunction[] = [];
-
-  public add(judgement: Judgement) {
-    this.cbs.forEach((cb) => cb(judgement));
-  }
-
-  public onAdd(cbs: MaybeArray<OnAddJudgementFunction>) {
-    this.cbs.push(...toArray(cbs));
-  }
-}
-
-const judgementService = new JudgementService();
+const judgementService = new Subscribable<{ add: Judgement }>();
 
 export { judgementService };

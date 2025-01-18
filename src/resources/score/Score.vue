@@ -9,7 +9,7 @@ const p = defineProps<{ totalNotes: number }>();
 
 const { score, update: updateScore } = useScore(() => p.totalNotes);
 
-judgementService.onAdd(updateScore);
+judgementService.subscribe("add", updateScore);
 
 watch(score, (_score) => emit("update:score", _score));
 </script>

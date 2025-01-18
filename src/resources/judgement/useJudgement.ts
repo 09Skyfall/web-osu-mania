@@ -65,14 +65,14 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   const judge = (note?: CanvasNote) => {
     if (!note) {
       // counts as a late miss
-      judgementService.add("MISS");
+      judgementService.publish("add", "MISS");
     } else {
       if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
       const jw = (Object.keys(windows.value) as Judgement[]).find((jw) =>
         inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
       );
       assert(jw, "expected judgement window to not be undefined");
-      judgementService.add(jw);
+      judgementService.publish("add", jw);
       judged.push(note.id);
     }
   };

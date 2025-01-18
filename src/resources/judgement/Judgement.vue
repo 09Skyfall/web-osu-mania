@@ -17,7 +17,7 @@ const src = computed(() => {
   return null;
 });
 
-judgementService.onAdd((j) => (currentJudgement.value = { value: j, id: uniqueId() }));
+judgementService.subscribe("add", (j) => (currentJudgement.value = { value: j, id: uniqueId() }));
 </script>
 
 <template>

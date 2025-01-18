@@ -18,7 +18,7 @@ const judgements = ref({
   [JUDGEMENT.MISS]: 0,
 });
 
-judgementService.onAdd((j) => judgements.value[j]++);
+judgementService.subscribe("add", (j) => judgements.value[j]++);
 </script>
 
 <template>

@@ -15,7 +15,7 @@ const barColor = computed(() =>
   RGB.interpolate(lowHealthColor, highHealthColor, health.value).toString(),
 );
 
-judgementService.onAdd((j) => {
+judgementService.subscribe("add", (j) => {
   switch (j) {
     case "PERFECT":
       health.value += health.value * 0.25;
