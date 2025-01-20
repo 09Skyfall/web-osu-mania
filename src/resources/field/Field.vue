@@ -10,7 +10,7 @@ import { BeatmapLevel } from "../beatmap/store";
 import { getColumnColor } from "../column/store";
 import HitKey from "../../components/HitKey.vue";
 import Column from "../column/Column.vue";
-import { useAutoPlay } from "../mods/useAutoPlay";
+// import { useAutoPlay } from "../mods/useAutoPlay";
 import { useSettingsStore } from "../settings/store";
 
 const p = defineProps<{ level: BeatmapLevel }>();
@@ -19,7 +19,7 @@ const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
 
 const { keyBindings4k, keyBindings7k } = storeToRefs(useSettingsStore());
 
-const { hit: autoHit } = useAutoPlay();
+// const { hit: autoHit } = useAutoPlay();
 
 const columns = ref<InstanceType<typeof Column>[]>([]);
 
@@ -41,7 +41,7 @@ const start: AnimateFunction = (delta_t) => {
 
   const now = timer.elapsed;
 
-  columns.value.forEach((column, i) => {
+  columns.value.forEach((column) => {
     column.canvas.reset();
 
     if (!column.done && column.nextNote && column.nextNote.hit_t <= now + DURATION.value) {
@@ -63,7 +63,7 @@ const start: AnimateFunction = (delta_t) => {
 
       const canvasNote = new CanvasNote({ y: y + y_offset, type });
 
-      autoHit(canvasNote, hitKeys.value[i]);
+      // autoHit(canvasNote, hitKeys.value[i]);
 
       column.push(canvasNote);
     }
