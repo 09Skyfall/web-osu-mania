@@ -16,7 +16,6 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
 
   const { active } = useKey(key); // TODO: aggiungere stato di pausa
 
-  const judged: string[] = [];
   // TODO: potrebbe essere un composable JudgementWindows da passare come parametro a Judgement
   const windows = computed(() =>
     mapValues(JUDGEMENT_WINDOWS, (jw) => ({
@@ -30,22 +29,20 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   // let earlyRelease = false; TODO
 
   const judgeDeletedNote = (note: CanvasNote) => {
-    if (!judged.includes(note.id)) {
-      if (note.type === NOTE_TYPE.HEAD) judgingLongNote = true;
-      else if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
-      judge();
-    } else {
-      remove(judged, (id) => note.id === id);
-    }
+    if (note.judged) return;
+
+    if (note.type === NOTE_TYPE.HEAD) judgingLongNote = true;
+    else if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
+    judge();
   };
 
   const onKeyPress = (pressed: boolean) => {
     if (gameState.value === GAME_STATE.PAUSED) return;
 
-    const toBeJudged = notes.value
-      // TODO: trasformare in un'unica find
-      .filter((note) => inRange(note.y, windows.value.MISS.top, windows.value.MISS.bottom + 1))
-      .find((note) => !judged.includes(note.id));
+    const toBeJudged = notes.value.find(
+      (note) =>
+        !note.judged && inRange(note.y, windows.value.MISS.top, windows.value.MISS.bottom + 1),
+    );
 
     if (pressed) {
       if (!toBeJudged) return;
@@ -73,7 +70,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
       );
       assert(jw, "expected judgement window to not be undefined");
       judgementService.publish("add", jw);
-      judged.push(note.id);
+      note.judged = true;
     }
   };
 
