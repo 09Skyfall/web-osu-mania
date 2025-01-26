@@ -23,13 +23,14 @@ import { getScrollParent } from "../utils/functions/getScrollParent";
 type UseParabolicListOptions = {
   baseWidth: number;
   factor: number;
-  type?: "positive" | "negative";
 };
 
 export const useParabolicList = (
   target: Element | string,
-  { baseWidth, factor, type = "negative" }: UseParabolicListOptions,
+  { baseWidth, factor }: UseParabolicListOptions,
 ) => {
+  assert(factor >= 1, "factor must be more than 1");
+
   const visibleElements = new WeakSet<Element>();
   const targetElement = ref<Element | null>(null);
 
@@ -49,12 +50,13 @@ export const useParabolicList = (
     // values inside the range [~-1, +1]
     const normalizedRange = valuesRange / (scrollParent.clientHeight / 2);
 
-    const width =
-      baseWidth + factor * (type === "positive" ? normalizedRange ** 2 : -(normalizedRange ** 2));
+    const xOffset = factor * 25 * -(normalizedRange ** 2);
 
     const multiplier = parseFloat(el.getAttribute("p-multiplier") ?? "1");
+    const width = baseWidth * multiplier;
 
-    el.style.width = `${width * multiplier}px`;
+    el.style.width = `${width}px`;
+    el.style.transform = `translateX(${xOffset}px)`;
   };
 
   const intersectionObserver = new IntersectionObserver((entries) => {
