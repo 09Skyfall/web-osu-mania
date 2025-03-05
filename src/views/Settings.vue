@@ -8,13 +8,13 @@ import { useRouter } from "vue-router";
 import { ROUTE } from "../plugins/router";
 import OtpInput from "../components/OtpInput.vue";
 import { useSettingsStore } from "../resources/settings/store";
-import ExpandXTransition from "../components/ExpandXTransition.vue";
 import { primaryDarker, secondary } from "../resources/colors";
 import Icon from "../components/Icon.vue";
 import { storeToRefs } from "pinia";
 import Slider from "../components/Slider.vue";
 import { SETTINGS_CATEGORY, settingsCategories } from "../resources/settings/vos";
 import { UnsubscribeCallback } from "../utils/classes/Subscribable";
+import TogglableNavbar from "../components/TogglableNavbar.vue";
 
 const router = useRouter();
 
@@ -37,11 +37,6 @@ const audioGraphNodes: AudioGraphNode<BiquadFilterNode>[] = [];
 let unsubscribeFromAudioStream: null | UnsubscribeCallback = null;
 
 const selectedCategory = ref<SETTINGS_CATEGORY>(SETTINGS_CATEGORY.INPUT);
-
-const exit = () => {
-  active.value = false;
-  setTimeout(() => router.replace({ name: ROUTE.HOME }), 250); // ew
-};
 
 const onUpdateGraph = (graph: AudioGraphI) => {
   const transformer = audioStream.value.context.createBiquadFilter();
@@ -66,7 +61,11 @@ watch(
   { immediate: true },
 );
 
-useKey("Escape", { on_key_up: exit });
+useKey("Escape", { on_key_up: () => (active.value = false) });
+
+watch(active, (_active) => {
+  if (!_active) setTimeout(() => router.replace({ name: ROUTE.HOME }), 250); // ew
+});
 
 onUnmounted(() => {
   unsubscribeFromAudioStream?.();
@@ -75,9 +74,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ExpandXTransition>
-    <!-- TODO: add button to close drawer -->
-    <aside v-if="active">
+  <TogglableNavbar v-model="active">
+    <div class="settings-content">
       <section class="settings-category-list">
         <h5 class="settings-title">SETTINGS</h5>
 
@@ -175,22 +173,17 @@ onUnmounted(() => {
           </div>
         </template> -->
       </section>
-    </aside>
-  </ExpandXTransition>
+    </div>
+  </TogglableNavbar>
 </template>
 
 <style scoped>
-aside {
+.settings-content {
+  height: 100%;
+  width: 100%;
   display: grid;
   grid-template-columns: 300px 500px;
-
-  position: absolute;
-  width: 800px;
-  height: 100dvh;
-
-  border-radius: 0 1rem 1rem 0;
-  box-shadow: var(--primary) 2px 0 6px -2px;
-  overflow: hidden;
+  border-radius: inherit;
 }
 
 .settings-title {
@@ -233,6 +226,7 @@ aside {
 
 .settings-category-selected {
   background-color: var(--primary);
+  border-radius: inherit;
   padding: 1rem 1.5rem;
   display: flex;
   flex-direction: column;
