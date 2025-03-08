@@ -48,14 +48,12 @@ class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
     const songsObjectStore = await this.db.objectStore("songs");
 
     const addOneTask = async (file: File | Blob) => {
-      const beatmap = await oszToJson(file);
+      const { beatmap, audio } = await oszToJson(file);
 
-      const audioChunks = (await blobToAudioChunks(beatmap.audioSource, this.CHUNK_DURATION)).map(
-        (chunk) => ({
-          ...chunk,
-          beatmapId: beatmap.id,
-        }),
-      );
+      const audioChunks = (await blobToAudioChunks(audio, this.CHUNK_DURATION)).map((chunk) => ({
+        ...chunk,
+        beatmapId: beatmap.id,
+      }));
 
       songsObjectStore.add(audioChunks);
       return { key: await beatmapsObjectStore.add(beatmap), beatmap };

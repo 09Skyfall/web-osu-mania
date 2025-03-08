@@ -8,7 +8,6 @@ import { nonNull } from "../../utils/assertions/nonNull";
 export type Beatmap<SourceType extends string | Blob = Blob> = {
   id: string;
   levels: BeatmapLevel[];
-  audioSource: SourceType;
   imageSource?: SourceType;
 };
 
@@ -75,7 +74,7 @@ class UnsupportedOsuKeyCount extends Error {
   }
 }
 
-export const oszToJson = async (file: Blob): Promise<Beatmap> => {
+export const oszToJson = async (file: Blob): Promise<{ beatmap: Beatmap; audio: Blob }> => {
   // TODO: check that the file given is actually a .osz
 
   const reader = new ZipReader(new BlobReader(file));
@@ -122,10 +121,12 @@ export const oszToJson = async (file: Blob): Promise<Beatmap> => {
   );
 
   return {
-    id: nonNull(beatmapId),
-    audioSource: nonNull(audioSource),
-    imageSource,
-    levels: beatmapLevels,
+    beatmap: {
+      id: nonNull(beatmapId),
+      imageSource,
+      levels: beatmapLevels,
+    },
+    audio: nonNull(audioSource),
   };
 };
 

@@ -69,7 +69,6 @@ const unsubscribeFromDb = beatmapDb.subscribe("add", async (keys) => {
     const beatmap = await beatmapDb.getItem("beatmaps", key);
     return {
       ...beatmap,
-      audioSource: URL.createObjectURL(beatmap.audioSource),
       imageSource: beatmap.imageSource ? URL.createObjectURL(beatmap.imageSource) : undefined,
     };
   });
@@ -98,7 +97,6 @@ onBeforeMount(async () => {
   } else {
     beatmaps.value = toArray(await beatmapDb.getItem("beatmaps")).map((b) => ({
       ...b,
-      audioSource: URL.createObjectURL(b.audioSource),
       imageSource: b.imageSource ? URL.createObjectURL(b.imageSource) : undefined,
     }));
 
