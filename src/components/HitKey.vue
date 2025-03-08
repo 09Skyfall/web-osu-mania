@@ -4,6 +4,8 @@ import { useKey } from "../composables/useKey";
 import { RGB } from "../resources/colors/RGB";
 import { GAME_STATE, useGameFieldStore } from "../resources/field/store";
 import { computed } from "vue";
+import { timeoutRef } from "../composables/timeoutRef";
+import FadeTransition from "./FadeTransition.vue";
 
 // TODO: spostare componente
 
@@ -12,12 +14,17 @@ const p = defineProps<{ hitKey: string; color: RGB }>();
 const { HIT_KEY_HEIGHT, COL_WIDTH, gameState } = storeToRefs(useGameFieldStore());
 
 const { active } = useKey(p.hitKey);
+const hitKeyLabel = timeoutRef(p.hitKey, 3000);
 
 const disabled = computed(() => gameState.value === GAME_STATE.PAUSED);
 </script>
 
 <template>
-  <button :active :disabled class="hit-key" />
+  <button :active :disabled class="hit-key">
+    <FadeTransition :duration="1000">
+      <span v-if="hitKeyLabel">{{ hitKeyLabel }}</span>
+    </FadeTransition>
+  </button>
 </template>
 
 <style scoped>
@@ -44,6 +51,11 @@ const disabled = computed(() => gameState.value === GAME_STATE.PAUSED);
       rgba(v-bind("color.r"), v-bind("color.g"), v-bind("color.b"), 0.45)
     );
     animation: expand 50ms forwards;
+  }
+
+  span {
+    font-size: 2.5rem;
+    text-transform: uppercase;
   }
 }
 
