@@ -10,7 +10,32 @@
   --primary-darker: #af0051;
   --primary-lighter: #db2777;
   --secondary: #ff87b7;
+
+
 }
+
+/* TOAST */
+:root {
+  --toastify-text-color-error: oklch(0.444 0.177 26.899);
+  --toastify-text-color-info: oklch(0.424 0.199 265.638);
+  --toastify-text-color-success: oklch(0.448 0.119 151.328);
+  --toastify-text-color-warning: oklch(0.473 0.137 46.201);
+
+  --toastify-color-error: oklch(0.885 0.062 18.334);
+  --toastify-color-info: oklch(0.882 0.059 254.128);
+  --toastify-color-success: oklch(0.925 0.084 155.995);
+  --toastify-color-warning: oklch(0.924 0.12 95.746);
+
+  --toastify-color-transparent: currentColor;
+
+  --toastify-font-family: "Quicksand", sans-serif;
+}
+
+.Toastify__close-button {
+  color: oklch(0.551 0.027 264.364)
+}
+
+
 
 body {
   margin: 0;

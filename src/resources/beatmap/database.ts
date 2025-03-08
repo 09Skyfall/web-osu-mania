@@ -8,10 +8,11 @@ import {
   offsetAudioChunk,
 } from "../audio/store";
 import { assert } from "../../utils/assertions/assert";
-import { mapAsync } from "../../utils/functions/mapAsync";
 import { toArray } from "../../utils/functions/toArray";
 import { fulfilledAndRejected } from "../../utils/functions/fulfilledAndRejected";
 import { Subscribable } from "../../utils/classes/Subscribable";
+import { toast, ToastPromiseParams } from "vue3-toastify";
+import { waitAtLeast } from "../../utils/functions/waitAtLeast";
 
 const DATABASE_NAME = "Osu!Web-beatmaps-store";
 const DATABASE_VERSION = 1;
@@ -46,32 +47,43 @@ class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
     const beatmapsObjectStore = await this.db.objectStore("beatmaps");
     const songsObjectStore = await this.db.objectStore("songs");
 
-    const { fulfilled: beatmaps, rejected: rejectedBeatmaps } = await fulfilledAndRejected(
-      await Promise.allSettled(toArray(files).map(oszToJson)),
-    );
+    const addOneTask = async (file: File | Blob) => {
+      const beatmap = await oszToJson(file);
 
-    rejectedBeatmaps.forEach(console.error);
+      const audioChunks = (await blobToAudioChunks(beatmap.audioSource, this.CHUNK_DURATION)).map(
+        (chunk) => ({
+          ...chunk,
+          beatmapId: beatmap.id,
+        }),
+      );
 
-    const beatmapsChunks = await mapAsync(toArray(beatmaps), async (beatmap) => {
-      return (await blobToAudioChunks(beatmap.audioSource, this.CHUNK_DURATION)).map((chunk) => ({
-        ...chunk,
-        beatmapId: beatmap.id,
-      }));
+      songsObjectStore.add(audioChunks);
+      return { key: await beatmapsObjectStore.add(beatmap), beatmap };
+    };
+
+    const toastPromiseParams = (
+      file: File | Blob,
+    ): ToastPromiseParams<Awaited<ReturnType<typeof addOneTask>>> => ({
+      pending: `Trying to import ${file instanceof File ? file.name : "a new beatmap"}...`,
+      success: {
+        render({ data }) {
+          return `Successfully imported ${data.beatmap.levels[0].title}.`;
+        },
+      },
+      error: {
+        render({ data }) {
+          return `Failed to import ${file instanceof File ? file.name : "a new beatmap"} for the following reasong: ${data}`;
+        },
+      },
     });
 
-    const { rejected: rejectedSongs } = await fulfilledAndRejected(
-      await Promise.allSettled(beatmapsChunks.map((bChunk) => songsObjectStore.add(bChunk))),
+    const { fulfilled } = await fulfilledAndRejected(
+      toArray(files).map((file) =>
+        toast.promise(waitAtLeast(addOneTask, 1000)(file), toastPromiseParams(file)),
+      ),
     );
 
-    rejectedSongs.forEach(console.error);
-
-    const { fulfilled: keys, rejected: rejectedKeys } = await fulfilledAndRejected(
-      await Promise.allSettled(beatmaps.map((f) => beatmapsObjectStore.add(f))),
-    );
-
-    rejectedKeys.forEach(console.error);
-
-    if (keys.length) this.publish("add", keys.flat());
+    if (fulfilled.length) this.publish("add", fulfilled.map((i) => i.key).flat());
   }
 
   removeItem() {

@@ -68,6 +68,13 @@ const beatmapLevelProperties = new Map([
   [PROPERTY_CATEGORY.EVENTS, [PROPERTY.IMAGE_FILENAME]],
 ]);
 
+class UnsupportedOsuKeyCount extends Error {
+  constructor(unsupportedKeyCount: string | number) {
+    super();
+    this.message = `Osu!Web does not yet support beatmaps with a key count of ${unsupportedKeyCount}.`;
+  }
+}
+
 export const oszToJson = async (file: Blob): Promise<Beatmap> => {
   // TODO: check that the file given is actually a .osz
 
@@ -96,9 +103,7 @@ export const oszToJson = async (file: Blob): Promise<Beatmap> => {
 
       const keyCount = Number(nonNull(valueOf(PROPERTY.CIRCLE_SIZE)));
 
-      if (![4, 7].includes(keyCount)) {
-        throw new Error(`Key count of ${keyCount} is not yet supported.`);
-      }
+      if (![4, 7].includes(keyCount)) throw new UnsupportedOsuKeyCount(keyCount);
 
       return {
         id: nonNull(valueOf(PROPERTY.BEATMAP_LEVEL_ID)),
