@@ -15,7 +15,7 @@ export const useGameFieldStore = defineStore("game-field", () => {
 
   const { scrollSpeed } = storeToRefs(useSettingsStore());
 
-  const HIT_KEY_HEIGHT = ref(100); // px
+  const HIT_KEY_HEIGHT = ref(150); // px
   const COL_HEIGHT = computed(() => screenHeight.value - HIT_KEY_HEIGHT.value); // px
   const COL_WIDTH = ref(100); // px
   const DURATION = computed(() => COL_HEIGHT.value / scrollSpeed.value); // ms
