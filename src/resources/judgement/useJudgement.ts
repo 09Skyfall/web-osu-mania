@@ -1,5 +1,5 @@
 import { computed, watch, type Ref } from "vue";
-import { inRange, mapValues, remove } from "lodash";
+import { inRange, mapValues } from "lodash";
 import { type Judgement, JUDGEMENT_WINDOWS } from "./store";
 import { CanvasNote, NOTE_TYPE } from "../note/store";
 import { judgementService } from "./JudgementService";
