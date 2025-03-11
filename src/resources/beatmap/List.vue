@@ -12,6 +12,7 @@ import { mapAsync } from "../../utils/functions/mapAsync";
 import { nonNull } from "../../utils/assertions/nonNull";
 import { AudioGraphI } from "../audio/AudioGraph";
 import { UnsubscribeCallback } from "../../utils/classes/Subscribable";
+import { ToastService } from "../../services/ToastService";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -85,15 +86,24 @@ onBeforeMount(async () => {
   await beatmapDb.open();
 
   if ((await beatmapDb.count("beatmaps")) === 0) {
-    const defaultBeatmaps = import.meta.glob("/assets/default-beatmaps/**.osz");
+    ToastService.promise(
+      async () => {
+        const defaultBeatmaps = import.meta.glob("/assets/default-beatmaps/**.osz");
 
-    const imports = (await mapAsync(Object.keys(defaultBeatmaps), (path) =>
-      defaultBeatmaps[path](),
-    )) as { default: string }[];
+        const imports = (await mapAsync(Object.keys(defaultBeatmaps), (path) =>
+          defaultBeatmaps[path](),
+        )) as { default: string }[];
 
-    const files = await mapAsync(imports, async (i) => (await fetch(i.default)).blob());
+        const files = await mapAsync(imports, async (i) => (await fetch(i.default)).blob());
 
-    beatmapDb.addItem(files);
+        await beatmapDb.addItem(files);
+      },
+      {
+        pending: "Importing some beatmaps, hold on tight!",
+        success: "Beatmaps imported successfully, have fun!",
+        error: "Something went wrong. Retry later :(",
+      },
+    );
   } else {
     beatmaps.value = toArray(await beatmapDb.getItem("beatmaps")).map((b) => ({
       ...b,

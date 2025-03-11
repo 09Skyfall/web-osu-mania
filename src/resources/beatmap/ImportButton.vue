@@ -8,7 +8,7 @@ const onSelectFile = async (e: Event) => {
 
   await beatmapDb.open();
 
-  await beatmapDb.addItem([...files]);
+  await beatmapDb.addItem([...files], { toast: true });
 };
 </script>
 

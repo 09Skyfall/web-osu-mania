@@ -11,8 +11,9 @@ import { assert } from "../../utils/assertions/assert";
 import { toArray } from "../../utils/functions/toArray";
 import { fulfilledAndRejected } from "../../utils/functions/fulfilledAndRejected";
 import { Subscribable } from "../../utils/classes/Subscribable";
-import { toast, ToastPromiseParams } from "vue3-toastify";
+import { ToastPromiseParams } from "vue3-toastify";
 import { waitAtLeast } from "../../utils/functions/waitAtLeast";
+import { ToastService } from "../../services/ToastService";
 
 const DATABASE_NAME = "Osu!Web-beatmaps-store";
 const DATABASE_VERSION = 1;
@@ -41,7 +42,7 @@ class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
     ]);
   }
 
-  async addItem(files: MaybeArray<File | Blob>) {
+  async addItem(files: MaybeArray<File | Blob>, { toast = false } = {}) {
     assert(this.db, "Cannot add item before opening the connection to the databse.");
 
     const beatmapsObjectStore = await this.db.objectStore("beatmaps");
@@ -76,9 +77,10 @@ class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
     });
 
     const { fulfilled } = await fulfilledAndRejected(
-      toArray(files).map((file) =>
-        toast.promise(waitAtLeast(addOneTask, 1000)(file), toastPromiseParams(file)),
-      ),
+      toArray(files).map((file) => {
+        const p = waitAtLeast(addOneTask, 1000)(file);
+        return toast ? ToastService.promise(p, toastPromiseParams(file)) : p;
+      }),
     );
 
     if (fulfilled.length) this.publish("add", fulfilled.map((i) => i.key).flat());
