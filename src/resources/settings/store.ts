@@ -24,6 +24,7 @@ export const useSettingsStore = defineStore("settings", () => {
   const backgroundOpacity = createSettingsRef(SETTINGS.BACKGROUND_OPACITY);
   const showFps = createSettingsRef(SETTINGS.SHOW_FPS);
   const masterVolume = createSettingsRef(SETTINGS.MASTER_VOLUME);
+  const globalOffset = createSettingsRef(SETTINGS.GLOBAL_OFFSET);
 
   watch(masterVolume, (value) => (audioManager.volume = value / 100));
 
@@ -35,5 +36,6 @@ export const useSettingsStore = defineStore("settings", () => {
     backgroundOpacity,
     showFps,
     masterVolume,
+    globalOffset,
   };
 });

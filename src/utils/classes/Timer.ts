@@ -5,8 +5,14 @@ export class Timer {
   private _paused_t: null | number = null;
   private _paused_time = 0;
 
+  private readonly _offset: number;
+
+  constructor({ offset = 0 } = {}) {
+    this._offset = offset;
+  }
+
   public start() {
-    this._start_t = performance.now();
+    this._start_t = performance.now() + this._offset;
   }
 
   public pause() {

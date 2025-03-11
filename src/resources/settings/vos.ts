@@ -6,6 +6,7 @@ export enum SETTINGS {
   BACKGROUND_OPACITY = "BACKGROUND_OPACITY",
   SHOW_FPS = "SHOW_FPS",
   MASTER_VOLUME = "MASTER_VOLUME",
+  GLOBAL_OFFSET = "GLOBAL_OFFSET",
 }
 
 export const settingsMeta = {
@@ -16,6 +17,7 @@ export const settingsMeta = {
   [SETTINGS.BACKGROUND_OPACITY]: { default: 1 },
   [SETTINGS.SHOW_FPS]: { default: false },
   [SETTINGS.MASTER_VOLUME]: { default: 1 },
+  [SETTINGS.GLOBAL_OFFSET]: { default: 0 },
 } satisfies Record<SETTINGS, { default: any }>;
 
 export type SettingDefaultT<S extends SETTINGS> = (typeof settingsMeta)[S]["default"];

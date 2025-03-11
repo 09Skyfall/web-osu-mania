@@ -17,7 +17,7 @@ const p = defineProps<{ level: BeatmapLevel }>();
 
 const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
 
-const { keyBindings4k, keyBindings7k } = storeToRefs(useSettingsStore());
+const { keyBindings4k, keyBindings7k, globalOffset } = storeToRefs(useSettingsStore());
 
 // const { hit: autoHit } = useAutoPlay();
 
@@ -34,7 +34,7 @@ const hitKeys = computed(() => {
   }
 });
 
-const timer = new Timer();
+const timer = new Timer({ offset: globalOffset.value });
 
 const start: AnimateFunction = (delta_t) => {
   if (!timer.started) timer.start();

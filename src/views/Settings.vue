@@ -28,6 +28,7 @@ const {
   backgroundOpacity,
   masterVolume,
   scrollSpeed,
+  globalOffset,
 } = storeToRefs(useSettingsStore());
 
 const audioStream = inject("audioStream", ref(new AudioStream()));
@@ -124,6 +125,17 @@ onUnmounted(() => {
             <Slider
               v-model="masterVolume"
               :min="0"
+              :color="secondary.toString()"
+              :bg-color="primaryDarker.toString()"
+            />
+          </div>
+
+          <div>
+            <p>Global offset</p>
+            <Slider
+              v-model="globalOffset"
+              :min="-300"
+              :max="300"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
