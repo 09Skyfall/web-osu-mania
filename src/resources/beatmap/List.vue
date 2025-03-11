@@ -120,7 +120,7 @@ onUnmounted(() => {
         class="list-item beatmap-list-item"
         :class="{ selected: isBeatmapSelected(beatmap.id) }"
         :style="`--background-image-src: url('${beatmap.imageSource}')`"
-        :p-multiplier="isBeatmapSelected(beatmap.id) ? 1.1 : 1"
+        :p-multiplier="isBeatmapSelected(beatmap.id) ? 1.15 : 1"
         :id="beatmap.id"
         @click="onSelectBeatmap($event, beatmap)"
       >
@@ -145,7 +145,7 @@ onUnmounted(() => {
           v-for="(level, i) of beatmap.levels"
           :key="i"
           class="list-item beatmap-level-list-item"
-          :p-multiplier="isLevelSelected(level.id) ? 1.05 : 1"
+          :p-multiplier="isLevelSelected(level.id) ? 1.1 : 1"
           :class="{ selected: isLevelSelected(level.id) }"
           @click="onSelectLevel(level)"
         >
