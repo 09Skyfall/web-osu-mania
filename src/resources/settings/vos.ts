@@ -16,7 +16,7 @@ export const settingsMeta = {
   [SETTINGS.BACKGROUND_BLUR]: { default: 6 /* px */ },
   [SETTINGS.BACKGROUND_OPACITY]: { default: 1 },
   [SETTINGS.SHOW_FPS]: { default: false },
-  [SETTINGS.MASTER_VOLUME]: { default: 1 },
+  [SETTINGS.MASTER_VOLUME]: { default: 100 },
   [SETTINGS.GLOBAL_OFFSET]: { default: 0 },
 } satisfies Record<SETTINGS, { default: any }>;
 
