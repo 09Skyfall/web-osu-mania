@@ -21,6 +21,7 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
   private _volume = 1;
   private _playingGraphs: AudioGraphI[] = [];
   private _playingGains: GainNode[] = [];
+  private _playingBuffers: AudioBufferSourceNode[] = [];
 
   public context: AudioContext;
 
@@ -42,15 +43,14 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
 
   async stream() {
     assert(this._reader, "No readableStream was set for this AudioStream.");
-
-    let startTime = 0;
-
     const { done, value: chunk } = await this._reader.read();
 
     if (done) {
       this.publish("end");
       return;
     }
+
+    let startTime = this.context.currentTime;
 
     this._playChunk(chunk, startTime);
     startTime += chunk.length / chunk.sampleRate;
@@ -63,9 +63,11 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
         return;
       }
 
-      const bufferSource = this._playChunk(chunk, startTime);
+      this._playChunk(chunk, startTime);
 
-      await new Promise((res) => bufferSource.addEventListener("ended", res, { once: true }));
+      await new Promise((res) =>
+        this._playingBuffers[0].addEventListener("ended", res, { once: true }),
+      );
 
       startTime += chunk.length / chunk.sampleRate;
     }
@@ -124,16 +126,17 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
   private _playChunk = (chunk: AudioChunk, startTime: number) => {
     const bufferSource = this.context.createBufferSource();
 
-    bufferSource.buffer = audioChunkToAudioBuffer(chunk);
-
     bufferSource.start(startTime);
+
+    bufferSource.buffer = audioChunkToAudioBuffer(chunk);
 
     if (this._playingGraphs.length >= 2) this._playingGraphs.shift();
     const audioGraph = this.createAudioGraph(bufferSource);
     this._playingGraphs.push(audioGraph);
 
-    this.publish("update:graphs", audioGraph);
+    if (this._playingBuffers.length >= 2) this._playingBuffers.shift();
+    this._playingBuffers.push(bufferSource);
 
-    return bufferSource;
+    this.publish("update:graphs", audioGraph);
   };
 }
