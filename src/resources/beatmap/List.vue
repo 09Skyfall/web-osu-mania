@@ -130,7 +130,7 @@ onUnmounted(() => {
         class="list-item beatmap-list-item"
         :class="{ selected: isBeatmapSelected(beatmap.id) }"
         :style="`--background-image-src: url('${beatmap.imageSource}')`"
-        :p-multiplier="isBeatmapSelected(beatmap.id) ? 1.15 : 1"
+        :selected="isBeatmapSelected(beatmap.id) ? 1.15 : 1"
         :id="beatmap.id"
         @click="onSelectBeatmap($event, beatmap)"
       >
@@ -155,7 +155,7 @@ onUnmounted(() => {
           v-for="(level, i) of beatmap.levels"
           :key="i"
           class="list-item beatmap-level-list-item"
-          :p-multiplier="isLevelSelected(level.id) ? 1.1 : 1"
+          :selected="isLevelSelected(level.id) ? 1.1 : 1"
           :class="{ selected: isLevelSelected(level.id) }"
           @click="onSelectLevel(level)"
         >
@@ -185,6 +185,30 @@ onUnmounted(() => {
   cursor: pointer;
   box-shadow: black 2px 2px 8px 0;
   transition: margin 150ms;
+
+  &.selected {
+    box-shadow: white 0 0 8px 0;
+    border: 1px solid white;
+    margin: 8px 0;
+  }
+
+  &::before {
+    content: "";
+    opacity: 0;
+    transition: opacity 250ms;
+  }
+
+  &:hover::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0.1;
+    left: 0;
+    top: 0;
+  }
 }
 
 .list-item-content {
@@ -198,62 +222,64 @@ onUnmounted(() => {
   gap: 4px;
 }
 
-.beatmap-list-item-content {
-  padding: 1rem;
-  background: linear-gradient(45deg, transparent, rgba(0, 0, 0, 0.5) 85%);
-}
-
-.beatmap-level-list-item-content {
-  padding: 0.5rem 1rem;
-}
-
-.beatmap-list-item-content .title {
-  line-height: 1.45rem;
-  letter-spacing: 0.03rem;
-  font-size: 1.15rem;
-}
-
-.beatmap-list-item-content .subtitle {
-  letter-spacing: 0.015rem;
-}
-
-.list-item.selected {
-  box-shadow: white 0 0 8px 0;
-  border: 1px solid white;
-  margin: 8px 0;
-}
-
-.list-item::before {
-  content: "";
-  opacity: 0;
-  transition: opacity 250ms;
-}
-
-.list-item:hover::before {
-  content: "";
-  position: absolute;
-  border-radius: inherit;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  opacity: 0.1;
-  left: 0;
-  top: 0;
-}
-
 .beatmap-list-item {
-  height: 100px;
+  min-height: 70px;
+  max-height: 100px;
+  height: 10%;
+
+  width: 60%;
+  min-width: 680px;
+  max-width: 1280px;
+
   scale: 1 1.05;
 
   background-image: var(--background-image-src);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+
+  &.selected {
+    width: 67%;
+    min-width: 710px;
+    max-width: 1310px;
+  }
+}
+
+.beatmap-list-item-content {
+  padding: 1rem;
+  background: linear-gradient(45deg, transparent, rgba(0, 0, 0, 0.5) 85%);
+
+  .title {
+    line-height: 1.45rem;
+    letter-spacing: 0.03rem;
+    font-size: 1.15rem;
+  }
+
+  .subtitle {
+    letter-spacing: 0.015rem;
+  }
 }
 
 .beatmap-level-list-item {
+  min-height: 35px;
+  max-height: 50px;
+  height: 5%;
+
+  width: 57%;
+  min-width: 650px;
+  max-width: 1250px;
+
   background: linear-gradient(45deg, var(--secondary) 35%, var(--primary));
-  height: 50px;
   margin: 4px 0;
+
+  &.selected {
+    width: 64%;
+    min-width: 680px;
+    max-width: 1280px;
+  }
+}
+
+.beatmap-level-list-item-content {
+  padding: 0.5rem 1rem;
 }
 </style>

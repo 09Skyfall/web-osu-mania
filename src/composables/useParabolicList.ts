@@ -16,19 +16,14 @@ import { getScrollParent } from "../utils/functions/getScrollParent";
  *
  * Special Attributes:
  *  - p-skip: skips width computation on the element
- *  - p-multiplier: multiplies the computed width of the element
  *  - p-skip-scroll-parent: skips given element when searching for the scroll parent
  */
 
 type UseParabolicListOptions = {
-  baseWidth: number;
   factor: number;
 };
 
-export const useParabolicList = (
-  target: Element | string,
-  { baseWidth, factor }: UseParabolicListOptions,
-) => {
+export const useParabolicList = (target: Element | string, { factor }: UseParabolicListOptions) => {
   assert(factor >= 1, "factor must be more than 1");
 
   const visibleElements = new WeakSet<Element>();
@@ -39,10 +34,10 @@ export const useParabolicList = (
 
     if (scrollParent === null) return;
 
-    const offsetFromTopBorder = Math.min(
-      el.offsetTop - scrollParent.scrollTop,
-      scrollParent.clientHeight,
-    );
+    // Offset from the half height of the el to the top of the scroll parent
+    const offsetFromTopBorder =
+      Math.min(el.offsetTop - scrollParent.scrollTop, scrollParent.clientHeight) +
+      el.clientHeight / 2;
 
     // values inside the range [~-scrollParent.clientHeight / 2, +scrollParent.clientHeight / 2]
     const valuesRange = offsetFromTopBorder - scrollParent.clientHeight / 2;
@@ -50,12 +45,8 @@ export const useParabolicList = (
     // values inside the range [~-1, +1]
     const normalizedRange = valuesRange / (scrollParent.clientHeight / 2);
 
-    const xOffset = factor * 25 * -(normalizedRange ** 2);
+    const xOffset = factor * 20 * -(normalizedRange ** 2);
 
-    const multiplier = parseFloat(el.getAttribute("p-multiplier") ?? "1");
-    const width = baseWidth * multiplier;
-
-    el.style.width = `${width}px`;
     el.style.translate = `${xOffset}px`;
   };
 
