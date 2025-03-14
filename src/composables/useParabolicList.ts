@@ -56,7 +56,7 @@ export const useParabolicList = (
     const width = baseWidth * multiplier;
 
     el.style.width = `${width}px`;
-    el.style.transform = `translateX(${xOffset}px)`;
+    el.style.translate = `${xOffset}px`;
   };
 
   const intersectionObserver = new IntersectionObserver((entries) => {

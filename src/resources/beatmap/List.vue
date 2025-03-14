@@ -243,7 +243,7 @@ onUnmounted(() => {
 
 .beatmap-list-item {
   height: 100px;
-  transform: scaleY(1.05);
+  scale: 1 1.05;
 
   background-image: var(--background-image-src);
   background-position: center;
