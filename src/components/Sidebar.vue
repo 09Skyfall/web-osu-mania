@@ -31,7 +31,7 @@ const openSettings = () => router.push({ name: ROUTE.SETTINGS });
 
 <style scoped>
 aside {
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
 

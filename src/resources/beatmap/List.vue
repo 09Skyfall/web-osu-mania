@@ -13,6 +13,7 @@ import { nonNull } from "../../utils/assertions/nonNull";
 import { AudioGraphI } from "../audio/AudioGraph";
 import { UnsubscribeCallback } from "../../utils/classes/Subscribable";
 import { ToastService } from "../../services/ToastService";
+import Spacer from "../../components/Spacer.vue";
 
 const emit = defineEmits<{
   "update:selected-beatmap": [beatmap: Beatmap<string>];
@@ -124,8 +125,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <List :items="beatmaps" bouncy parabolic class="beatmaps-list">
-    <template #item="{ item: beatmap }">
+  <List parabolic class="beatmaps-list">
+    <Spacer height="50%" />
+
+    <template v-for="(beatmap, i) of beatmaps" :key="i">
       <li
         class="list-item beatmap-list-item"
         :class="{ selected: isBeatmapSelected(beatmap.id) }"
@@ -165,6 +168,8 @@ onUnmounted(() => {
         </li>
       </template>
     </template>
+
+    <Spacer height="50%" />
   </List>
 </template>
 
