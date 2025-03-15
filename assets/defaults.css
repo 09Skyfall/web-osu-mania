@@ -10,8 +10,6 @@
   --primary-darker: #af0051;
   --primary-lighter: #db2777;
   --secondary: #ff87b7;
-
-
 }
 
 /* TOAST */
@@ -62,4 +60,28 @@ button {
   height: 100dvh;
   width: 100dvw;
   overflow: hidden;
+}
+
+a {
+  color: oklch(0.936 0.032 17.717)
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */ 
+  line-height: calc(1 / 0.75);
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */ 
+  line-height: calc(1.25 / 0.875);
+}
+
+.text-lg {
+  font-size: 1.125rem; /* 18px */ 
+  line-height: calc(1.75 / 1.125);
+}
+
+.text-xl {
+  font-size: 1.25rem; /* 20px */ 
+  line-height* calc(1.75 / 1.25);
 }
