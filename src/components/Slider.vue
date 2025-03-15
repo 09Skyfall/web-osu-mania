@@ -108,7 +108,7 @@ watch(value, (v) => emit("update:model-value", v));
 
   .__slider-values-hint {
     user-select: none;
-    width: 48px;
+    min-width: 48px;
     text-align: center;
     color: rgba(255, 255, 255, 0.9);
     font-weight: lighter;
