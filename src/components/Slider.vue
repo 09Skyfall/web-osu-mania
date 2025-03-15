@@ -21,6 +21,7 @@ const p = withDefaults(
     step?: number;
     modelValue?: number;
     unit?: string;
+    showValueHints?: boolean;
   }>(),
   {
     height: "20px",
@@ -81,19 +82,39 @@ watch(value, (v) => emit("update:model-value", v));
 
 <template>
   <!-- TODO: aria attributes for sliders -->
-  <div class="slider" :id="sliderId" v-resize="onResize" @click="updateValue">
-    <div class="thumb" :data-dragging="dragging" :id="sliderThumbId" />
-    <div class="progress" />
+  <div class="__slider-wrapper">
+    <span v-if="showValueHints" class="__slider-values-hint text-xs">{{ min }}{{ unit }}</span>
 
-    <MouseOverlay :active="dragging || hovering">
-      <div class="slider-mouse-overlay">
-        <slot name="mouse-overlay" v-bind="{ value }">{{ value }}{{ unit }}</slot>
-      </div>
-    </MouseOverlay>
+    <div class="slider" :id="sliderId" v-resize="onResize" @click="updateValue">
+      <div class="thumb" :data-dragging="dragging" :id="sliderThumbId" />
+      <div class="progress" />
+
+      <MouseOverlay :active="dragging || hovering">
+        <div class="slider-mouse-overlay">
+          <slot name="mouse-overlay" v-bind="{ value }">{{ value }}{{ unit }}</slot>
+        </div>
+      </MouseOverlay>
+    </div>
+
+    <span v-if="showValueHints" class="__slider-values-hint text-xs">{{ max }}{{ unit }}</span>
   </div>
 </template>
 
 <style scoped>
+.__slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .__slider-values-hint {
+    user-select: none;
+    width: 48px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: lighter;
+  }
+}
+
 .slider {
   width: v-bind("width");
   height: v-bind("height");

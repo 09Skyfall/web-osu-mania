@@ -131,6 +131,7 @@ onUnmounted(() => {
             <Slider
               v-model="masterVolume"
               :min="0"
+              show-value-hints
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
@@ -152,6 +153,7 @@ onUnmounted(() => {
               :min="-300"
               :max="300"
               unit="ms"
+              show-value-hints
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
@@ -181,6 +183,7 @@ onUnmounted(() => {
               :max="150"
               :step="1"
               unit="px"
+              show-value-hints
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
@@ -195,6 +198,7 @@ onUnmounted(() => {
               :max="500"
               :step="1"
               unit="px"
+              show-value-hints
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
