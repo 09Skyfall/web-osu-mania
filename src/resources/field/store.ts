@@ -10,6 +10,8 @@ export enum GAME_STATE {
   GAME_FINISH = "GAME_FINISH",
 }
 
+const MAX_DURATION = 11485;
+
 export const useGameFieldStore = defineStore("game-field", () => {
   const { borderBoxBlock: screenHeight } = useResize(window.document.documentElement);
 
@@ -18,7 +20,8 @@ export const useGameFieldStore = defineStore("game-field", () => {
   const HIT_KEY_HEIGHT = computed(() => hitKeyHeight.value); // px
   const COL_HEIGHT = computed(() => screenHeight.value - HIT_KEY_HEIGHT.value); // px
   const COL_WIDTH = computed(() => columnWidth.value); // px
-  const DURATION = computed(() => COL_HEIGHT.value / scrollSpeed.value); // ms
+  const DURATION = computed(() => MAX_DURATION / scrollSpeed.value); // ms
+  const VELOCITY = computed(() => COL_HEIGHT.value / DURATION.value); // ms
 
   const gameState = ref<GAME_STATE>(GAME_STATE.RUNNING);
 
@@ -27,6 +30,7 @@ export const useGameFieldStore = defineStore("game-field", () => {
     COL_HEIGHT,
     COL_WIDTH,
     DURATION,
+    VELOCITY,
     gameState,
   };
 });

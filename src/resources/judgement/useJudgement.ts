@@ -7,20 +7,17 @@ import { GAME_STATE, useGameFieldStore } from "../field/store";
 import { storeToRefs } from "pinia";
 import { useKey } from "../../composables/useKey";
 import { assert } from "../../utils/assertions/assert";
-import { useSettingsStore } from "../settings/store";
 
 export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
-  const { COL_HEIGHT, gameState } = storeToRefs(useGameFieldStore());
-
-  const { scrollSpeed } = storeToRefs(useSettingsStore());
+  const { COL_HEIGHT, VELOCITY, gameState } = storeToRefs(useGameFieldStore());
 
   const { active } = useKey(key); // TODO: aggiungere stato di pausa
 
   // TODO: potrebbe essere un composable JudgementWindows da passare come parametro a Judgement
   const windows = computed(() =>
     mapValues(JUDGEMENT_WINDOWS, (jw) => ({
-      top: COL_HEIGHT.value - (scrollSpeed.value * jw) / 2,
-      bottom: COL_HEIGHT.value + (scrollSpeed.value * jw) / 2,
+      top: COL_HEIGHT.value - (VELOCITY.value * jw) / 2,
+      bottom: COL_HEIGHT.value + (VELOCITY.value * jw) / 2,
     })),
   );
 

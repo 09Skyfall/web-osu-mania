@@ -8,7 +8,6 @@ import { useJudgement } from "../judgement/useJudgement";
 import { ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { nonNull } from "../../utils/assertions/nonNull";
-import { useSettingsStore } from "../settings/store";
 
 // TODO: rename column entity to fieldColumn ?
 
@@ -16,8 +15,7 @@ const p = withDefaults(defineProps<{ notes: Note[]; hitKey: string; color?: RGB 
   color: () => new RGB(255, 255, 255),
 });
 
-const { COL_HEIGHT, COL_WIDTH } = storeToRefs(useGameFieldStore());
-const { scrollSpeed } = storeToRefs(useSettingsStore());
+const { COL_HEIGHT, COL_WIDTH, VELOCITY } = storeToRefs(useGameFieldStore());
 
 const { canvas, ctx: canvasContext } = useCanvas({ alpha: false });
 
@@ -34,7 +32,7 @@ const drawNote = (note: CanvasNote, i: number, delta_t: number) => {
 
   canvasContext.value.fillStyle = p.color.toString();
 
-  note.y += scrollSpeed.value * delta_t;
+  note.y += VELOCITY.value * delta_t;
 
   switch (note.type) {
     case NOTE_TYPE.HEAD: {

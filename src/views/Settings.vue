@@ -16,6 +16,7 @@ import { SETTINGS_CATEGORY, settingsCategories } from "../resources/settings/vos
 import { UnsubscribeCallback } from "../utils/classes/Subscribable";
 import TogglableNavbar from "../components/TogglableNavbar.vue";
 import SettingsItem from "../resources/settings/SettingsItem.vue";
+import { useGameFieldStore } from "../resources/field/store";
 
 const router = useRouter();
 
@@ -33,6 +34,8 @@ const {
   hitKeyHeight,
   columnWidth,
 } = storeToRefs(useSettingsStore());
+
+const { DURATION } = storeToRefs(useGameFieldStore());
 
 const audioStream = inject("audioStream", ref(new AudioStream()));
 
@@ -164,14 +167,20 @@ onUnmounted(() => {
           <SettingsItem>
             <template #title>Scroll speed</template>
 
+            <!-- TODO: scroll speeds below ~15 are bugged for the first notes of the beatmap -->
             <Slider
               v-model="scrollSpeed"
-              :min="1"
-              :max="2"
+              :min="15"
+              :max="40"
               :step="0.1"
+              show-value-hints
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
-            />
+            >
+              <template #mouse-overlay="{ value }">
+                {{ value }} ({{ Math.floor(DURATION) }}ms)
+              </template>
+            </Slider>
           </SettingsItem>
 
           <SettingsItem>
