@@ -20,6 +20,7 @@ const p = withDefaults(
     max?: number;
     step?: number;
     modelValue?: number;
+    unit?: string;
   }>(),
   {
     height: "20px",
@@ -86,7 +87,7 @@ watch(value, (v) => emit("update:model-value", v));
 
     <MouseOverlay :active="dragging || hovering">
       <div class="slider-mouse-overlay">
-        <slot name="mouse-overlay" v-bind="{ value }">{{ value }}</slot>
+        <slot name="mouse-overlay" v-bind="{ value }">{{ value }}{{ unit }}</slot>
       </div>
     </MouseOverlay>
   </div>

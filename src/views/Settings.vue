@@ -151,6 +151,7 @@ onUnmounted(() => {
               v-model="globalOffset"
               :min="-300"
               :max="300"
+              unit="ms"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
@@ -179,6 +180,7 @@ onUnmounted(() => {
               :min="70"
               :max="150"
               :step="1"
+              unit="px"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
@@ -192,6 +194,7 @@ onUnmounted(() => {
               :min="100"
               :max="500"
               :step="1"
+              unit="px"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
