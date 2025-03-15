@@ -20,7 +20,7 @@ withDefaults(defineProps<{ active: boolean; opacity?: number; color?: RGB }>(), 
 
 <style scoped>
 .overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   z-index: 1;
 
