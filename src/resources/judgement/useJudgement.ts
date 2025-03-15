@@ -23,7 +23,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
 
   // internal state
   let judgingLongNote = false;
-  // let earlyRelease = false; TODO
+  let earlyRelease = false;
 
   const judgeDeletedNote = (note: CanvasNote) => {
     if (note.judged) return;
@@ -50,8 +50,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
         assert(toBeJudged.type === NOTE_TYPE.TAIL, "Expected note to be of type TAIL");
         judge(toBeJudged);
       } else {
-        // TODO: implement earlyRelease logic (prevents judgements better than MEH for tail note)
-        // earlyRelease = true;
+        earlyRelease = true;
       }
     }
   };
@@ -60,15 +59,25 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
     if (!note) {
       // counts as a late miss
       judgementService.publish("add", "MISS");
-    } else {
-      if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
-      const jw = (Object.keys(windows.value) as Judgement[]).find((jw) =>
-        inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
-      );
-      assert(jw, "expected judgement window to not be undefined");
-      judgementService.publish("add", jw);
-      note.judged = true;
+      return;
     }
+
+    let jw = (Object.keys(windows.value) as Judgement[]).find((jw) =>
+      inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
+    );
+
+    if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
+
+    if (note.type === NOTE_TYPE.TAIL && earlyRelease) {
+      earlyRelease = false;
+      jw = jw === "MISS" ? "MISS" : "MEH";
+    }
+
+    assert(jw, "expected judgement window to not be undefined");
+
+    judgementService.publish("add", jw);
+
+    note.judged = true;
   };
 
   watch(active, onKeyPress);
