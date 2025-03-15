@@ -7,6 +7,8 @@ export enum SETTINGS {
   SHOW_FPS = "SHOW_FPS",
   MASTER_VOLUME = "MASTER_VOLUME",
   GLOBAL_OFFSET = "GLOBAL_OFFSET",
+  HIT_KEY_HEIGHT = "HIT_KEY_HEIGHT",
+  COLUMN_WIDTH = "COLUMN_WIDTH",
 }
 
 export const settingsMeta = {
@@ -18,6 +20,8 @@ export const settingsMeta = {
   [SETTINGS.SHOW_FPS]: { default: false },
   [SETTINGS.MASTER_VOLUME]: { default: 100 },
   [SETTINGS.GLOBAL_OFFSET]: { default: 0 },
+  [SETTINGS.HIT_KEY_HEIGHT]: { default: 100 },
+  [SETTINGS.COLUMN_WIDTH]: { default: 100 },
 } satisfies Record<SETTINGS, { default: any }>;
 
 export type SettingDefaultT<S extends SETTINGS> = (typeof settingsMeta)[S]["default"];

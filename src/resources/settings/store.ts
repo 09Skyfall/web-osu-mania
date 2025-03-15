@@ -25,6 +25,8 @@ export const useSettingsStore = defineStore("settings", () => {
   const showFps = createSettingsRef(SETTINGS.SHOW_FPS);
   const masterVolume = createSettingsRef(SETTINGS.MASTER_VOLUME);
   const globalOffset = createSettingsRef(SETTINGS.GLOBAL_OFFSET);
+  const hitKeyHeight = createSettingsRef(SETTINGS.HIT_KEY_HEIGHT);
+  const columnWidth = createSettingsRef(SETTINGS.COLUMN_WIDTH);
 
   watch(masterVolume, (value) => (audioManager.volume = value / 100));
 
@@ -37,5 +39,7 @@ export const useSettingsStore = defineStore("settings", () => {
     showFps,
     masterVolume,
     globalOffset,
+    hitKeyHeight,
+    columnWidth,
   };
 });

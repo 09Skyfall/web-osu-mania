@@ -15,6 +15,7 @@ import Slider from "../components/Slider.vue";
 import { SETTINGS_CATEGORY, settingsCategories } from "../resources/settings/vos";
 import { UnsubscribeCallback } from "../utils/classes/Subscribable";
 import TogglableNavbar from "../components/TogglableNavbar.vue";
+import SettingsItem from "../resources/settings/SettingsItem.vue";
 
 const router = useRouter();
 
@@ -29,6 +30,8 @@ const {
   masterVolume,
   scrollSpeed,
   globalOffset,
+  hitKeyHeight,
+  columnWidth,
 } = storeToRefs(useSettingsStore());
 
 const audioStream = inject("audioStream", ref(new AudioStream()));
@@ -83,7 +86,7 @@ onUnmounted(() => {
         <button
           v-for="category of settingsCategories"
           :key="category.value"
-          class="settings-category-item"
+          class="settings-category-item text-lg"
           :data-active="category.value === selectedCategory"
           @click="selectedCategory = category.value"
         >
@@ -96,8 +99,9 @@ onUnmounted(() => {
         <h6 class="title">{{ settingsCategories[selectedCategory].title }}</h6>
 
         <template v-if="selectedCategory === SETTINGS_CATEGORY.INPUT">
-          <div>
-            <p>Key bindings [4K]</p>
+          <SettingsItem>
+            <template #title>Key bindings [4K]</template>
+
             <OtpInput
               v-model="keyBindings4k"
               length="4"
@@ -105,10 +109,11 @@ onUnmounted(() => {
               font-size="1.33rem"
               :color="secondary.toString()"
             />
-          </div>
+          </SettingsItem>
 
-          <div>
-            <p>Key bindings [7K]</p>
+          <SettingsItem>
+            <template #title>Key bindings [7K]</template>
+
             <OtpInput
               v-model="keyBindings7k"
               length="7"
@@ -116,22 +121,32 @@ onUnmounted(() => {
               font-size="1.33rem"
               :color="secondary.toString()"
             />
-          </div>
+          </SettingsItem>
         </template>
 
         <template v-if="selectedCategory === SETTINGS_CATEGORY.AUDIO">
-          <div>
-            <p>Master volume</p>
+          <SettingsItem>
+            <template #title>Master volume</template>
+
             <Slider
               v-model="masterVolume"
               :min="0"
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
-          </div>
+          </SettingsItem>
 
-          <div>
-            <p>Global offset</p>
+          <SettingsItem>
+            <template #title>Global offset</template>
+
+            <template #subtitle>
+              You can use
+              <a href="https://nullvoxpopuli.github.io/latency-tester" target="_blank"
+                >this latency tester</a
+              >
+              to know what your offset should be set to.
+            </template>
+
             <Slider
               v-model="globalOffset"
               :min="-300"
@@ -139,12 +154,13 @@ onUnmounted(() => {
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
-          </div>
+          </SettingsItem>
         </template>
 
         <template v-if="selectedCategory === SETTINGS_CATEGORY.GAMEPLAY">
-          <div>
-            <p>Scroll speed</p>
+          <SettingsItem>
+            <template #title>Scroll speed</template>
+
             <Slider
               v-model="scrollSpeed"
               :min="1"
@@ -153,10 +169,37 @@ onUnmounted(() => {
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
-          </div>
+          </SettingsItem>
 
-          <div>
-            <p>Background opacity</p>
+          <SettingsItem>
+            <template #title>Column width</template>
+
+            <Slider
+              v-model="columnWidth"
+              :min="70"
+              :max="150"
+              :step="1"
+              :color="secondary.toString()"
+              :bg-color="primaryDarker.toString()"
+            />
+          </SettingsItem>
+
+          <SettingsItem>
+            <template #title>Hit position</template>
+
+            <Slider
+              v-model="hitKeyHeight"
+              :min="100"
+              :max="500"
+              :step="1"
+              :color="secondary.toString()"
+              :bg-color="primaryDarker.toString()"
+            />
+          </SettingsItem>
+
+          <SettingsItem>
+            <template #title>Background opacity</template>
+
             <Slider
               v-model="backgroundOpacity"
               :min="0"
@@ -165,10 +208,11 @@ onUnmounted(() => {
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
-          </div>
+          </SettingsItem>
 
-          <div>
-            <p>Background blur</p>
+          <SettingsItem>
+            <template #title>Background blur</template>
+
             <Slider
               v-model="backgroundBlur"
               :min="0"
@@ -176,7 +220,7 @@ onUnmounted(() => {
               :color="secondary.toString()"
               :bg-color="primaryDarker.toString()"
             />
-          </div>
+          </SettingsItem>
         </template>
 
         <!-- <template v-if="selectedCategory === SETTINGS_CATEGORY.GENERAL">
@@ -217,7 +261,6 @@ onUnmounted(() => {
   transition: all 150ms ease-in-out;
   height: 50px;
   position: relative;
-  font-size: 1rem;
 
   &[data-active="true"] {
     background-color: var(--primary-lighter);
@@ -250,12 +293,6 @@ onUnmounted(() => {
     font-size: 1.85rem;
     line-height: 1.25;
     letter-spacing: 0.03rem;
-  }
-
-  p {
-    margin: 0;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
   }
 }
 </style>
