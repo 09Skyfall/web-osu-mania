@@ -29,10 +29,10 @@ judgementService.subscribe("add", ({ judgement }) => {
     case "OK":
       break;
     case "MEH":
-      health.value -= 0.05;
+      health.value -= 0.025;
       break;
     case "MISS":
-      health.value -= 0.1;
+      health.value -= 0.05;
       break;
   }
 });
