@@ -30,7 +30,7 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
 
     if (note.type === NOTE_TYPE.HEAD) judgingLongNote = true;
     else if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
-    judge();
+    judge(note);
   };
 
   const onKeyPress = (pressed: boolean) => {
@@ -55,14 +55,9 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
     }
   };
 
-  const judge = (note?: CanvasNote) => {
-    if (!note) {
-      // counts as a late miss
-      judgementService.publish("add", "MISS");
-      return;
-    }
-
-    let jw = (Object.keys(windows.value) as Judgement[]).find((jw) =>
+  const judge = (note: CanvasNote) => {
+    const jw =
+      (Object.keys(windows.value) as Judgement[]).find((jw) =>
       inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
     );
 

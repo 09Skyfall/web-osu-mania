@@ -9,6 +9,7 @@ import { ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { nonNull } from "../../utils/assertions/nonNull";
 import { NOTE_HEIGHT } from "./store";
+import { JUDGEMENT_WINDOWS } from "../judgement/store";
 
 // TODO: rename column entity to fieldColumn ?
 
@@ -59,10 +60,7 @@ const drawNote = (note: CanvasNote, i: number, delta_t: number) => {
 };
 
 const handleNoteDeletion = (note: CanvasNote, i: number) => {
-  // TODO: calcolare il buffer in base a alla window del judgement
-  const BUFFER = 100; /* buffer that leaves the note long enough to compute the judgement */
-
-  if (note.y >= COL_HEIGHT.value + BUFFER) {
+  if (note.y > COL_HEIGHT.value + (VELOCITY.value * JUDGEMENT_WINDOWS["MISS"]) / 2) {
     if (note.type === NOTE_TYPE.HEAD && canvasNotes.value[i + 1] === undefined) {
       // @doc Se cancello la testa di una longNote ma la tail ancora non è presente nel campo, non ci sarebbe
       // nessuna nota e quindi la longNote non verrebbe renderizzata
