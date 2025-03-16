@@ -76,12 +76,14 @@ class BeatmapsDatabase extends Subscribable<BeatmapsDBEventsDict> {
       },
     });
 
-    const { fulfilled } = await fulfilledAndRejected(
+    const { fulfilled, rejected } = await fulfilledAndRejected(
       toArray(files).map((file) => {
         const p = waitAtLeast(addOneTask, 1000)(file);
         return toast ? ToastService.promise(p, toastPromiseParams(file)) : p;
       }),
     );
+
+    rejected.forEach(console.error);
 
     if (fulfilled.length) this.publish("add", fulfilled.map((i) => i.key).flat());
   }
