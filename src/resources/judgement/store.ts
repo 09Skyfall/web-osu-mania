@@ -4,6 +4,7 @@ import goodImgUrl from "../../../assets/judgment-scores/judgement_good.png";
 import okImgUrl from "../../../assets/judgment-scores/judgement_ok.png";
 import mehImgUrl from "../../../assets/judgment-scores/judgement_meh.png";
 import missImgUrl from "../../../assets/judgment-scores/judgement_miss.png";
+import { RGB } from "../colors/RGB";
 
 const OD = 5;
 
@@ -24,6 +25,15 @@ export const JUDGEMENT_WINDOWS = {
   [JUDGEMENT.MEH]: 151 - 3 * OD,
   [JUDGEMENT.MISS]: 188 - 3 * OD,
 } as const;
+
+export const judgementColors: Record<JUDGEMENT, RGB> = {
+  [JUDGEMENT.PERFECT]: new RGB(237, 204, 104),
+  [JUDGEMENT.GREAT]: new RGB(255, 215, 51),
+  [JUDGEMENT.GOOD]: new RGB(101, 195, 1),
+  [JUDGEMENT.OK]: new RGB(4, 84, 185),
+  [JUDGEMENT.MEH]: new RGB(85, 98, 113),
+  [JUDGEMENT.MISS]: new RGB(188, 25, 15),
+};
 
 export type Judgement = keyof typeof JUDGEMENT;
 

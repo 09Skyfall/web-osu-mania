@@ -7,9 +7,10 @@ import { GAME_STATE, useGameFieldStore } from "../field/store";
 import { storeToRefs } from "pinia";
 import { useKey } from "../../composables/useKey";
 import { assert } from "../../utils/assertions/assert";
+import { nonNull } from "../../utils/assertions/nonNull";
 
 export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
-  const { COL_HEIGHT, VELOCITY, gameState } = storeToRefs(useGameFieldStore());
+  const { COL_HEIGHT, VELOCITY, gameState, timer } = storeToRefs(useGameFieldStore());
 
   const { active } = useKey(key); // TODO: aggiungere stato di pausa
 
@@ -56,21 +57,23 @@ export const useJudgement = (notes: Ref<CanvasNote[]>, key: string) => {
   };
 
   const judge = (note: CanvasNote) => {
-    const jw =
+    let judgement =
       (Object.keys(windows.value) as Judgement[]).find((jw) =>
-      inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
-    );
+        inRange(note.y, windows.value[jw].top, windows.value[jw].bottom + 1),
+      ) ?? "MISS";
 
     if (note.type === NOTE_TYPE.TAIL) judgingLongNote = false;
 
     if (note.type === NOTE_TYPE.TAIL && earlyRelease) {
       earlyRelease = false;
-      jw = jw === "MISS" ? "MISS" : "MEH";
+      judgement = judgement === "MISS" ? "MISS" : "MEH";
     }
 
-    assert(jw, "expected judgement window to not be undefined");
-
-    judgementService.publish("add", jw);
+    judgementService.publish("add", {
+      judgement,
+      note_hit_t: note.hit_t,
+      timestamp: nonNull(timer.value).elapsed,
+    });
 
     note.judged = true;
   };

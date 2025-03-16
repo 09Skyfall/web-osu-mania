@@ -1,7 +1,8 @@
 import { defineStore, storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { useResize } from "../../composables/useResize";
 import { useSettingsStore } from "../settings/store";
+import { Timer } from "../../utils/classes/Timer";
 
 export enum GAME_STATE {
   PAUSED = "PAUSED",
@@ -26,6 +27,14 @@ export const useGameFieldStore = defineStore("game-field", () => {
 
   const gameState = ref<GAME_STATE>(GAME_STATE.RUNNING);
 
+  const timer = shallowRef<Timer | null>(null);
+
+  watch(gameState, (state) => {
+    if ([GAME_STATE.GAME_FINISH, GAME_STATE.GAME_OVER].includes(state)) {
+      timer.value = null;
+    }
+  });
+
   return {
     HIT_KEY_HEIGHT,
     COL_HEIGHT,
@@ -34,5 +43,6 @@ export const useGameFieldStore = defineStore("game-field", () => {
     VELOCITY,
     LEAD_IN_TIME,
     gameState,
+    timer,
   };
 });

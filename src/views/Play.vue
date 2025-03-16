@@ -17,6 +17,7 @@ import { audioManager } from "../resources/audio/AudioManager";
 import { assert } from "../utils/assertions/assert";
 import BackgroundImage from "../resources/beatmap/BackgroundImage.vue";
 import GameFinishOverlay from "../resources/field/GameFinishOverlay.vue";
+import HitTimeVisualizer from "../resources/judgement/HitTimeVisualizer.vue";
 
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
@@ -109,8 +110,12 @@ const unwatch = watch(loading, (_loading) => {
 <template>
   <BackgroundImage :src="level?.imageSource">
     <div v-if="level" class="container">
+      <HitTimeVisualizer />
+
       <Field ref="field" :level :lead-in-time />
+
       <Judgement class="judgement" />
+
       <HealthBar @update:health="onUpdateHealth" />
     </div>
 

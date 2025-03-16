@@ -12,13 +12,14 @@ import HitKey from "../../components/HitKey.vue";
 import Column from "../column/Column.vue";
 // import { useAutoPlay } from "../mods/useAutoPlay";
 import { useSettingsStore } from "../settings/store";
+import { assert } from "../../utils/assertions/assert";
+import { nonNull } from "../../utils/assertions/nonNull";
 
 const p = withDefaults(defineProps<{ level: BeatmapLevel; leadInTime?: number }>(), {
   leadInTime: 0,
 });
 
-const { COL_HEIGHT, DURATION, VELOCITY } = storeToRefs(useGameFieldStore());
-
+const { COL_HEIGHT, DURATION, VELOCITY, timer } = storeToRefs(useGameFieldStore());
 const { keyBindings4k, keyBindings7k, globalOffset } = storeToRefs(useSettingsStore());
 
 // const { hit: autoHit } = useAutoPlay();
@@ -36,12 +37,13 @@ const hitKeys = computed(() => {
   }
 });
 
-const timer = new Timer({ offset: globalOffset.value + p.leadInTime });
+timer.value = new Timer({ offset: globalOffset.value + p.leadInTime });
 
 const start: AnimateFunction = (delta_t) => {
-  if (!timer.started) timer.start();
+  assert(timer.value);
+  if (!timer.value.started) timer.value.start();
 
-  const now = timer.elapsed;
+  const now = timer.value.elapsed;
 
   columns.value.forEach((column) => {
     column.canvas.reset();
@@ -63,7 +65,7 @@ const start: AnimateFunction = (delta_t) => {
       // duration / col_heght = delay / y ==> y = (col_height * delay) / duration
       const y_offset = (COL_HEIGHT.value * delay) / DURATION.value;
 
-      const canvasNote = new CanvasNote({ y: y + y_offset, type });
+      const canvasNote = new CanvasNote({ y: y + y_offset, type, hit_t });
 
       // autoHit(canvasNote, hitKeys.value[i]);
 
@@ -86,12 +88,12 @@ const animation = useAnimate([start /* , drawJudgementLines */], {
 });
 
 const pause = () => {
-  timer.pause();
+  nonNull(timer.value).pause();
   animation.pause();
 };
 
 const resume = () => {
-  timer.resume();
+  nonNull(timer.value).resume();
   animation.resume();
 };
 

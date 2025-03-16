@@ -17,7 +17,10 @@ const src = computed(() => {
   return null;
 });
 
-judgementService.subscribe("add", (j) => (currentJudgement.value = { value: j, id: uniqueId() }));
+judgementService.subscribe(
+  "add",
+  ({ judgement }) => (currentJudgement.value = { value: judgement, id: uniqueId() }),
+);
 </script>
 
 <template>

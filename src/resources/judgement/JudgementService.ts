@@ -8,6 +8,10 @@ import { Judgement } from "./store";
  * piuttosto che un'unica sequenza che raggruppa i valori delle varie colonne
  */
 
-const judgementService = new Subscribable<{ add: Judgement }>();
+type JudgementServiceEventsDict = {
+  add: { judgement: Judgement; note_hit_t: number; timestamp: number };
+};
+
+const judgementService = new Subscribable<JudgementServiceEventsDict>();
 
 export { judgementService };
