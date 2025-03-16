@@ -8,6 +8,7 @@ import { useJudgement } from "../judgement/useJudgement";
 import { ref } from "vue";
 import { assert } from "../../utils/assertions/assert";
 import { nonNull } from "../../utils/assertions/nonNull";
+import { NOTE_HEIGHT } from "./store";
 
 // TODO: rename column entity to fieldColumn ?
 
@@ -45,15 +46,15 @@ const drawNote = (note: CanvasNote, i: number, delta_t: number) => {
       const head = canvasNotes.value[i - 1] as CanvasNote | undefined;
       canvasContext.value.fillRect(
         0,
-        note.y - 25,
+        note.y - NOTE_HEIGHT,
         COL_WIDTH.value,
-        (head?.y ?? COL_HEIGHT.value) - note.y + 25,
+        (head?.y ?? COL_HEIGHT.value) - note.y + NOTE_HEIGHT,
       );
       break;
     }
 
     default:
-      canvasContext.value.fillRect(0, note.y, COL_WIDTH.value, -25);
+      canvasContext.value.fillRect(0, note.y, COL_WIDTH.value, -NOTE_HEIGHT);
   }
 };
 

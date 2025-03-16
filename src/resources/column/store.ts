@@ -44,3 +44,5 @@ export const getColumnColor = (number: number, keyCount: number) => {
       return white;
   }
 };
+
+export const NOTE_HEIGHT = 25; // px
