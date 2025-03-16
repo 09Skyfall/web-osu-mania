@@ -5,11 +5,6 @@ import { timeoutRef } from "../../composables/timeoutRef";
 import { uniqueId } from "lodash";
 import { computed } from "vue";
 
-/**
- * TODO: images are not cached and for each new judgement
- * an image is freshly fetched
- */
-
 const currentJudgement = timeoutRef<{ value: Judgement; id: string } | null>(null, 500);
 
 const src = computed(() => {
