@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { size, sum } from "lodash";
+import { max, min, size, sum } from "lodash";
 import { useGamePause } from "../resources/field/useGamePause";
 import { useAsyncComputed } from "../composables/useAsyncComputed";
 import { beatmapDb } from "../resources/beatmap/database";
@@ -21,6 +21,7 @@ import GameFinishOverlay from "../resources/field/GameFinishOverlay.vue";
 const p = defineProps<{ beatmapId: string; levelId: string }>();
 
 const { gameState } = storeToRefs(useGameFieldStore());
+const { LEAD_IN_TIME } = useGameFieldStore();
 
 gameState.value = GAME_STATE.RUNNING;
 
@@ -51,6 +52,14 @@ const totalNotes = computed(() => sum(level.value?.hitObjects.map(size)));
 const loading = computed(() => loadingLevel.value || loadingAudio.value || !field.value);
 
 const score = ref(0);
+
+const leadInTime = computed(() => {
+  if (!level.value) return 0;
+
+  const firstHitObjectT = min(level.value.hitObjects.map((col) => col[0].hit_t));
+
+  return max([LEAD_IN_TIME - nonNull(firstHitObjectT), 0]);
+});
 
 const pause = () => {
   nonNull(field.value).pause();
@@ -90,8 +99,8 @@ const unwatch = watch(loading, (_loading) => {
   assert(field.value && audioReadableStream.value);
 
   audioStream.value.setReader(audioReadableStream.value);
-  audioStream.value.stream();
-  field.value.play(); // TODO: Account for output latency
+  audioStream.value.stream({ startIn: leadInTime.value });
+  field.value.play();
 
   requestIdleCallback(unwatch);
 });
@@ -100,7 +109,7 @@ const unwatch = watch(loading, (_loading) => {
 <template>
   <BackgroundImage :src="level?.imageSource">
     <div v-if="level" class="container">
-      <Field ref="field" :level="level" />
+      <Field ref="field" :level :lead-in-time />
       <Judgement class="judgement" />
       <HealthBar @update:health="onUpdateHealth" />
     </div>

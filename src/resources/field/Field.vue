@@ -13,9 +13,11 @@ import Column from "../column/Column.vue";
 // import { useAutoPlay } from "../mods/useAutoPlay";
 import { useSettingsStore } from "../settings/store";
 
-const p = defineProps<{ level: BeatmapLevel }>();
+const p = withDefaults(defineProps<{ level: BeatmapLevel; leadInTime?: number }>(), {
+  leadInTime: 0,
+});
 
-const { COL_HEIGHT, DURATION } = storeToRefs(useGameFieldStore());
+const { COL_HEIGHT, DURATION, VELOCITY } = storeToRefs(useGameFieldStore());
 
 const { keyBindings4k, keyBindings7k, globalOffset } = storeToRefs(useSettingsStore());
 
@@ -34,7 +36,7 @@ const hitKeys = computed(() => {
   }
 });
 
-const timer = new Timer({ offset: globalOffset.value });
+const timer = new Timer({ offset: globalOffset.value + p.leadInTime });
 
 const start: AnimateFunction = (delta_t) => {
   if (!timer.started) timer.start();
@@ -56,7 +58,7 @@ const start: AnimateFunction = (delta_t) => {
        *             -> Calcolare la posizione y della nuova nota da inserire tale per cui non arrivi in ritardo alla fine del field.
        *                duration/col_height = (duration - hit_t)/y ==> y = (duration - hit_t) * col_height / duration
        */
-      const y = Math.max((DURATION.value - hit_t) * (COL_HEIGHT.value / DURATION.value), 0);
+      const y = Math.max((now - hit_t) * VELOCITY.value, 0);
       const delay = now + DURATION.value - hit_t;
       // duration / col_heght = delay / y ==> y = (col_height * delay) / duration
       const y_offset = (COL_HEIGHT.value * delay) / DURATION.value;

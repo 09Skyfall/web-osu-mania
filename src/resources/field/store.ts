@@ -22,6 +22,7 @@ export const useGameFieldStore = defineStore("game-field", () => {
   const COL_WIDTH = computed(() => columnWidth.value); // px
   const DURATION = computed(() => MAX_DURATION / scrollSpeed.value); // ms
   const VELOCITY = computed(() => COL_HEIGHT.value / DURATION.value); // ms
+  const LEAD_IN_TIME = 2_000; // ms
 
   const gameState = ref<GAME_STATE>(GAME_STATE.RUNNING);
 
@@ -31,6 +32,7 @@ export const useGameFieldStore = defineStore("game-field", () => {
     COL_WIDTH,
     DURATION,
     VELOCITY,
+    LEAD_IN_TIME,
     gameState,
   };
 });

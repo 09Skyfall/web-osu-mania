@@ -15,6 +15,8 @@ export type AudioStreamEventsDict = {
   cancelled: void;
 };
 
+type StreamOptions = { startIn?: number };
+
 export class AudioStream extends Subscribable<AudioStreamEventsDict> {
   private _reader: ReadableStreamDefaultReader<AudioChunk> | undefined;
   private _cancelled = false;
@@ -41,7 +43,7 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
     return Boolean(this._reader);
   }
 
-  async stream() {
+  async stream({ startIn = 0 }: StreamOptions = {}) {
     assert(this._reader, "No readableStream was set for this AudioStream.");
     const { done, value: chunk } = await this._reader.read();
 
@@ -50,7 +52,7 @@ export class AudioStream extends Subscribable<AudioStreamEventsDict> {
       return;
     }
 
-    let startTime = this.context.currentTime;
+    let startTime = this.context.currentTime + startIn / 1000;
 
     this._playChunk(chunk, startTime);
     startTime += chunk.length / chunk.sampleRate;
