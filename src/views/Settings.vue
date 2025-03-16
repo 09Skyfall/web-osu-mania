@@ -167,6 +167,12 @@ onUnmounted(() => {
           <SettingsItem>
             <template #title>Scroll speed</template>
 
+            <template #subtitle>
+              Higher scrolls speed will result in higher notes' velocity. Note that this will not
+              increase the level's difficulty as lower speeds will only result in visually denser
+              maps.
+            </template>
+
             <!-- TODO: scroll speeds below ~15 are bugged for the first notes of the beatmap -->
             <Slider
               v-model="scrollSpeed"
@@ -301,7 +307,7 @@ onUnmounted(() => {
   padding: 1rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 
   .title {
     margin: 0;
